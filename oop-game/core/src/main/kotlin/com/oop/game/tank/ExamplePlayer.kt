@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.GameObject
 import com.oop.game.InputHandler
 
+import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 /**
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *  플레이어 예제 — player.png 이미지, 화살표 키로 조종.
@@ -34,7 +35,8 @@ class ExamplePlayer(
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.
     //   Texture 는 GPU 메모리에 이미지를 올린 핸들이다.
     //   src/main/resources/player.png 에 위치.
-    private val texture = Texture(Gdx.files.internal("player.png"))
+    private val body = Texture(Gdx.files.internal("tank_image/body.png"))
+    private val gun = Texture(Gdx.files.internal("tank_image/tank1_nomal/nomal_gun.png"))
 
     private val speed = 200f
 
@@ -57,11 +59,36 @@ class ExamplePlayer(
      *   원본 이미지가 30x30 이고 w=30, h=30 이면 1:1 그대로 그려진다.
      */
     override fun draw(batch: SpriteBatch) {
-        batch.draw(texture, x, y, width, height)
+        val mouseX = Gdx.input.x.toFloat()
+        val mouseY = Gdx.graphics.height - Gdx.input.y.toFloat()  // Y축 반전
+
+        val angle = MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees
+
+        batch.draw(gun, // 텍스쳐
+            x - (gun.width / 4f) / 2f, // 위치
+            y + 25f, // 위치
+            gun.width / 4f / 2f, -25f,
+            gun.width / 4f,
+            gun.height / 4f,
+            1f, 1f,
+            angle-90,
+            0, 0,
+            gun.width, gun.height,
+            false, false
+            )
+
+        batch.draw(
+            body,
+            x - (body.width / 4f) / 2f,
+            y - (body.height / 4f) / 2f,
+            body.width / 4f,
+            body.height / 4f
+        )
     }
 
     /** GPU 자원 정리 — 화면이 닫힐 때 GameWorld 가 호출. */
     override fun dispose() {
-        texture.dispose()
+        gun.dispose()
+        body.dispose()
     }
 }
