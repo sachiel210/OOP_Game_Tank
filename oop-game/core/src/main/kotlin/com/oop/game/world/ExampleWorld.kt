@@ -1,4 +1,4 @@
-package com.oop.game.example
+package com.oop.game.world
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.GameWorld
 import com.oop.game.InputHandler
+import com.oop.game.Enemy.ExampleEnemy
+import com.oop.game.tank.ExamplePlayer
 import kotlin.math.floor
 
 /**
@@ -69,8 +71,8 @@ class ExampleWorld(
     // 플레이어 — 월드 중앙 하단에서 시작.
     //   월드 크기를 함께 넘겨서, 경계 밖으로 못 나가게 한다.
     private val player = ExamplePlayer(
-        x = worldWidth / 2 - 15f,   // 가로 30 의 절반을 빼서 정확히 중앙
-        y = 50f,
+        x = worldWidth / 2,   // 가로 30 의 절반을 빼서 정확히 중앙
+        y = worldHeight / 2,
         worldWidth = worldWidth,
         worldHeight = worldHeight
     )
@@ -194,7 +196,7 @@ class ExampleWorld(
                 // 월드 좌표의 타일 위치에서 offset 만큼 빼면 화면 좌표
                 val drawX = col * tileSize - offsetX
                 val drawY = row * tileSize - offsetY
-                batch.draw(tileTexture, drawX, drawY, tileSize, tileSize)
+                batch.draw(tileTexture, drawX, drawY, tileSize, tileSize) // 화면 출력 함수
             }
         }
 
