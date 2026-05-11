@@ -1,4 +1,4 @@
-package com.oop.game.Enemy
+package com.oop.game.enemy
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
@@ -24,7 +24,17 @@ import com.oop.game.GameObject
  * @param minX 왕복 이동의 왼쪽 한계 (보통 0f)
  * @param maxX 왕복 이동의 오른쪽 한계 (보통 worldWidth)
  */
-class ExampleEnemy( // GameObject의 자식 클래스
+
+/**
+ * 탱크 키우기 게임 enemy 주요 속성
+ *
+ * 1. 체력: 적 고유의 체력
+ * 2. 공격력: 플레이어와 충돌 시 입히는 피해량
+ * 3. 속도: 필드에서 이동하는 속도
+ * 4. 점수: 처치했을 때 얻을 수 있는 점수
+ */
+
+class SuperEnemy( // GameObject의 자식 클래스
     x: Float,
     y: Float,
     private val minX: Float,
@@ -32,7 +42,7 @@ class ExampleEnemy( // GameObject의 자식 클래스
 ) : GameObject(x, y, 40f, 40f) {
 
     // 이미지 로딩 — src/main/resources/enemy.png.
-    private val texture = Texture(Gdx.files.internal("enemy.png"))
+    private val texture = Texture(Gdx.files.internal("enemy_image/enemy_hexagon.png"))
 
     private val speed = 150f
 
@@ -60,7 +70,7 @@ class ExampleEnemy( // GameObject의 자식 클래스
      *   더 크게 보이게 하려면 width/height 를 늘리면 자동 확대된다.
      */
     override fun draw(batch: SpriteBatch) {
-        batch.draw(texture, x, y, width, height)
+        batch.draw(texture, x, y, texture.width / 5f, texture.height / 5f)
     }
 
     override fun dispose() {

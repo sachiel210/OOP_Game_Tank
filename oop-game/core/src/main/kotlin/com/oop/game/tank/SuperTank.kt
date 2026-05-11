@@ -9,7 +9,7 @@ import com.oop.game.InputHandler
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 /**
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- *  플레이어 예제 — player.png 이미지, 화살표 키로 조종.
+ *  탱크 부모 클래스. body, gun 이미지, 화살표 키로 조종.
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  *
  *  GameObject 를 상속하는 '가장 단순한' 예제다.
@@ -24,6 +24,17 @@ import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
  *
  * @param worldWidth/Height: 월드 크기를 받아 경계 밖으로 못 나가게 제한하는 용도.
  */
+
+/**
+ * 탱크 키우기 게임 탱크 주요 속성
+ * 1. 체력: 탱크의 고유 체력
+ * 2. 데미지: 탱크가 가지고 있는 고유 데미지
+ * 3. 탄환 크기: 탱크가 쏘는 탄환의 고유 크기
+ * 4. 연사속도: 탱크의 고유 연사속도
+ *
+ * 탱크 레벨업 시 위 스탯에 가중치 추가
+ */
+
 class SuperTank( // GameObject의 자식 클래스
     x: Float,
     y: Float,
@@ -67,9 +78,9 @@ class SuperTank( // GameObject의 자식 클래스
         batch.draw(gun, // 텍스쳐
             x - (gun.width / 4f) / 2f, // 위치
             y + 25f, // 위치
-            gun.width / 4f / 2f, -25f,
-            gun.width / 4f,
-            gun.height / 4f,
+            (gun.width / 4f) / 2f, -25f,
+            (gun.width / 4f),
+            (gun.height / 4f),
             1f, 1f,
             angle-90,
             0, 0,

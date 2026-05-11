@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.GameWorld
 import com.oop.game.InputHandler
-import com.oop.game.Enemy.ExampleEnemy
+import com.oop.game.enemy.SuperEnemy
 import com.oop.game.tank.SuperTank
 import kotlin.math.floor
 
@@ -26,7 +26,7 @@ import kotlin.math.floor
  *  ── 사용 이미지 (core/src/main/resources/) ──
  *   ▸ player.png  — 30x30 플레이어 스프라이트
  *   ▸ enemy.png   — 40x40 적 스프라이트
- *   ▸ tile.png    — 64x64 흰색 정사각형 (체스판 배경에 색만 입혀 사용)
+ *   ▸ tile.png    — 64x64 회색 정사각형 (체스판 배경)
  *
  *  ── 게임 상태 ──
  *   IN_PLAY   : 일반 진행 (이동·충돌 체크)
@@ -38,7 +38,7 @@ import kotlin.math.floor
  *   두 개를 같이 두어, 두 좌표계의 차이를 눈으로 확인할 수 있게 했다.
  *
  *  ── 배경 ──
- *   tile.png(흰 사각형)를 두 가지 색으로 틴트해 체스판처럼 깐다.
+ *   tile.png(회색 사각형)를 체스판처럼 깐다.
  *   카메라 이동을 눈으로 보여주기 위함이다.
  *   GameWorld.drawBackground(batch) 를 override 해서 그린다.
  *
@@ -78,7 +78,7 @@ class ExampleWorld( // Gameworld의 자식 클래스
     )
 
     // 적 — 월드 상단에서 좌우 왕복.
-    private val enemy = ExampleEnemy(
+    private val enemy = SuperEnemy(
         x = 100f,
         y = worldHeight - 100f,
         minX = 0f,
@@ -95,8 +95,6 @@ class ExampleWorld( // Gameworld의 자식 클래스
     //   tile.png 는 흰색 64x64 정사각형 한 장. 같은 텍스처에 batch.color 를
     //   바꿔가며 두 가지 색으로 그리는 트릭(틴트) 으로 체스판을 만든다.
     private val tileTexture = Texture(Gdx.files.internal("tile.png"))
-    private val bgColorDark = Color(0.08f, 0.08f, 0.08f, 1f)
-    private val bgColorLight = Color(0.15f, 0.15f, 0.15f, 1f)
     private val tileSize = 64f
 
     /**
@@ -191,7 +189,6 @@ class ExampleWorld( // Gameworld의 자식 클래스
         for (row in startRow until startRow + rows) {
             for (col in startCol until startCol + cols) {
                 // 행+열이 짝수면 어둡게, 홀수면 밝게 → 체스판 패턴
-                batch.color = if ((row + col) % 2 == 0) bgColorDark else bgColorLight
 
                 // 월드 좌표의 타일 위치에서 offset 만큼 빼면 화면 좌표
                 val drawX = col * tileSize - offsetX
