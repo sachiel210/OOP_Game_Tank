@@ -24,7 +24,7 @@ import com.oop.game.GameObject
  * @param minX 왕복 이동의 왼쪽 한계 (보통 0f)
  * @param maxX 왕복 이동의 오른쪽 한계 (보통 worldWidth)
  */
-class ExampleEnemy(
+class ExampleEnemy( // GameObject의 자식 클래스
     x: Float,
     y: Float,
     private val minX: Float,

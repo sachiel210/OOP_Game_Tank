@@ -24,12 +24,12 @@ import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
  *
  * @param worldWidth/Height: 월드 크기를 받아 경계 밖으로 못 나가게 제한하는 용도.
  */
-class ExamplePlayer(
+class ExamplePlayer( // GameObject의 자식 클래스
     x: Float,
     y: Float,
     private val worldWidth: Float,
     private val worldHeight: Float
-) : GameObject(x, y, 30f, 30f) {
+) : GameObject(x, y, 10f, 10f) {
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.

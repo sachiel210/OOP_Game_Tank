@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.GameWorld
 import com.oop.game.InputHandler
 import com.oop.game.Enemy.ExampleEnemy
-import com.oop.game.tank.ExamplePlayer
+import com.oop.game.tank.SuperTank
 import kotlin.math.floor
 
 /**
@@ -47,7 +47,7 @@ import kotlin.math.floor
  * @param worldWidth   월드 전체 너비 (화면보다 크면 WASD 로 탐험 가능)
  * @param worldHeight  월드 전체 높이
  */
-class ExampleWorld(
+class ExampleWorld( // Gameworld의 자식 클래스
     screenWidth: Float,
     screenHeight: Float,
     worldWidth: Float,
@@ -70,7 +70,7 @@ class ExampleWorld(
 
     // 플레이어 — 월드 중앙 하단에서 시작.
     //   월드 크기를 함께 넘겨서, 경계 밖으로 못 나가게 한다.
-    private val player = ExamplePlayer(
+    private val player = SuperTank(
         x = worldWidth / 2,   // 가로 30 의 절반을 빼서 정확히 중앙
         y = worldHeight / 2,
         worldWidth = worldWidth,
