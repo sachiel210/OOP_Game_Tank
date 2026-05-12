@@ -42,17 +42,21 @@ abstract class SuperTank( // GameObject의 자식 클래스
     private val worldHeight: Float
 ) : GameObject(x, y, 10f, 10f) {
 
-    abstract val healthPoint: Float
-    abstract val damage: Float
-    abstract val bulletSize: Float
-    abstract val reload: Float
+    abstract val tankHealthPoint: Float
+    abstract val tankDamage: Float
+    abstract val tankBulletSize: Float
+    abstract val tankReloadSpeed: Float
+    protected val speed = 200f
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.
     //   Texture 는 GPU 메모리에 이미지를 올린 핸들이다.
     //   src/main/resources/player.png 에 위치.
     private val body = Texture(Gdx.files.internal("tank_image/body.png"))
-    protected val speed = 200f
+
+    protected val tankProportion: Float = 4f // 기본 탱크 크기를 정해주는 변수
+    private val bodyWidth = body.width / tankProportion
+    private val bodyHeight = body.height / tankProportion
 
     abstract fun recoil() // 포 반동 애니메이션 함수
 
@@ -77,10 +81,10 @@ abstract class SuperTank( // GameObject의 자식 클래스
     override fun draw(batch: SpriteBatch) {
         batch.draw(
             body,
-            x - (body.width / 4f) / 2f,
-            y - (body.height / 4f) / 2f,
-            body.width / 4f,
-            body.height / 4f
+            x - bodyWidth / 2f, // 탱크 중앙 위치 확인
+            y - bodyHeight / 2f, // 탱크 중앙 위치 확인
+            bodyWidth,
+            bodyHeight
         )
     }
 

@@ -14,10 +14,10 @@ class Tank1Nomal(
     private val worldHeight: Float
 ): SuperTank(x, y, worldWidth, worldHeight) {
 
-    override val healthPoint: Float = 100f
-    override val damage: Float = 10f
-    override val bulletSize: Float = 10f
-    override val reload: Float = 10f
+    override val tankHealthPoint: Float = 100f
+    override val tankDamage: Float = 10f
+    override val tankBulletSize: Float = 10f
+    override val tankReloadSpeed: Float = 10f
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.
@@ -35,6 +35,7 @@ class Tank1Nomal(
 
     private var recoilTime: Float = 0f // 반동 애니메이션이 출력되는 시간
     private var recoilStrength: Float = 0f
+
 
     override fun recoil() {
         if (Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) {
