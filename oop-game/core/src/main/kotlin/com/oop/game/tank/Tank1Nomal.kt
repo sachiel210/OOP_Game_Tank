@@ -3,8 +3,6 @@ package com.oop.game.tank
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.oop.game.GameObject
-import com.oop.game.InputHandler
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 
 class Tank1Nomal(
@@ -18,12 +16,16 @@ class Tank1Nomal(
     override val tankDamage: Float = 10f
     override val tankBulletSize: Float = 10f
     override val tankReloadSpeed: Float = 10f
+    private var tank1RecoilData = RecoilData(recoilAmount = 0.2f)
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.
     //   Texture 는 GPU 메모리에 이미지를 올린 핸들이다.
     //   src/main/resources/player.png 에 위치.
     private val gun = Texture(Gdx.files.internal("tank_image/tank1_nomal/nomal_gun.png"))
+
+    private val gunWidth = gun.width / tankProportion
+    private val gunHeight = gun.height / tankProportion
 
     /**
      * 매 프레임 호출 — 자신의 이미지를 그린다.
@@ -33,39 +35,22 @@ class Tank1Nomal(
      *   원본 이미지가 30x30 이고 w=30, h=30 이면 1:1 그대로 그려진다.
      */
 
-    private var recoilTime: Float = 0f // 반동 애니메이션이 출력되는 시간
-    private var recoilStrength: Float = 0f
-
-
-    override fun recoil() {
-        if (Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) {
-            if (recoilTime == 0f)
-                recoilTime = 20f
-        }
-
-        if (recoilTime > 0){
-            if (recoilTime > 10) {
-                recoilStrength += 2f
-            }else {
-                recoilStrength -= 2f
-            }
-            recoilTime -= 1f
-        }
-    }
-
     override fun update(delta: Float) {
-        recoil()
+        tank1RecoilData = recoil(tank1RecoilData.recoilTime,
+            tank1RecoilData.recoilStrength,
+            tank1RecoilData.recoilAmount,
+            tankReloadSpeed)
+
         super.update(delta)
     }
 
     override fun draw(batch: SpriteBatch) {
-
         // 마우스 위치 확인 및 각도 체크
         val mouseX = Gdx.input.x.toFloat()
         val mouseY = Gdx.graphics.height - Gdx.input.y.toFloat()  // Y축 반전
         val angle = MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees
 
-        /*
+        /**
          * 포 반동 시스템
          *
          * 상세설명
@@ -80,16 +65,16 @@ class Tank1Nomal(
          * 내부 각도는 라디안으로 계산됨
          * 마우스가 바라보는 각도 * MathUtils.degreesToRadians 를 곱하면 라디안이 됨
          */
-        val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * recoilStrength
-        val yRecoil: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * recoilStrength
 
+        val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank1RecoilData.recoilStrength
+        val yRecoil: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank1RecoilData.recoilStrength
 
         batch.draw(gun, // 텍스쳐
-            x - (gun.width / 4f) / 2f - xRecoil, // 위치
+            x - gunWidth / 2f - xRecoil, // 위치
             y + 25f - yRecoil, // 위치
-            (gun.width / 4f) / 2f, -25f,
-            (gun.width / 4f),
-            (gun.height / 4f),
+            gunWidth / 2f, -25f,
+            gunWidth,
+            gunHeight,
             1f, 1f,
             angle-90,
             0, 0,
