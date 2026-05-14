@@ -3,6 +3,7 @@ package com.oop.game.tank
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.MathUtils
 import com.oop.game.GameObject
 import com.oop.game.InputHandler
 
@@ -57,6 +58,12 @@ abstract class SuperTank( // GameObject의 자식 클래스
     protected val tankProportion: Float = 4f // 기본 탱크 비율을 정해주는 변수
     private val bodyWidth = body.width / tankProportion // 탱크 기본 너비
     private val bodyHeight = body.height / tankProportion // 탱크 기본 높이
+
+    fun calAngle():Float { // 마우스 각도 계산 함수
+        val mouseX = Gdx.input.x.toFloat()
+        val mouseY = Gdx.graphics.height - Gdx.input.y.toFloat()  // Y축 반전
+        return  MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees
+    }
 
     // 포 발사 반동 애니메이션 함수
     fun recoil(recoilTime: Float, recoilStrength: Float, recoilAmount: Float, tankReloadSpeed: Float): RecoilData {

@@ -45,10 +45,8 @@ class Tank7Destroyer(
     }
 
     override fun draw(batch: SpriteBatch) {
-        // 마우스 위치 확인 및 각도 체크
-        val mouseX = Gdx.input.x.toFloat()
-        val mouseY = Gdx.graphics.height - Gdx.input.y.toFloat()  // Y축 반전
-        val angle = MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees
+        // 마우스와 탱크 각도 확인
+        val angle = calAngle()
 
         // 포 반동 시스템
         val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank7RecoilData.recoilStrength

@@ -48,10 +48,8 @@ class Tank6Ranger(
     }
 
     override fun draw(batch: SpriteBatch) {
-        // 마우스 위치 확인 및 각도 체크
-        val mouseX = Gdx.input.x.toFloat()
-        val mouseY = Gdx.graphics.height - Gdx.input.y.toFloat()  // Y축 반전
-        val angle = MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees
+        // 마우스와 탱크 각도 확인
+        val angle = calAngle()
 
         val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank6RecoilData.recoilStrength
         val yRecoil: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank6RecoilData.recoilStrength

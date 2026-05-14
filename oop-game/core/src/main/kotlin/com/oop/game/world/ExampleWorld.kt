@@ -70,7 +70,7 @@ class ExampleWorld( // Gameworld의 자식 클래스
 
     // 플레이어 — 월드 중앙 하단에서 시작.
     //   월드 크기를 함께 넘겨서, 경계 밖으로 못 나가게 한다.
-    private val player = Tank2Twin(
+    private val player = Tank3Triple(
         x = worldWidth / 2,   // 가로 30 의 절반을 빼서 정확히 중앙
         y = worldHeight / 2,
         worldWidth = worldWidth,
