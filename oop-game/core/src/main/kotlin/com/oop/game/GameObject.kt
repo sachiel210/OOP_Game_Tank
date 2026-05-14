@@ -96,8 +96,7 @@ abstract class GameObject(
      * 하지만, 이 강의의 규모에서는 가독성을 더 우선한다.
      */
 
-    // 우태희 수정 open 매서드로 변경
-    open fun getBounds(): Rectangle = Rectangle(x, y, width, height)
+    fun getBounds(): Rectangle = Rectangle(x, y, width, height)
 
     /**
      * 다른 객체와 충돌했는지 검사 — AABB(축 정렬 경계 상자) 방식.
