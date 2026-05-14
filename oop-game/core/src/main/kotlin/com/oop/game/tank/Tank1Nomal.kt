@@ -50,22 +50,7 @@ class Tank1Nomal(
         val mouseY = Gdx.graphics.height - Gdx.input.y.toFloat()  // Y축 반전
         val angle = MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees
 
-        /**
-         * 포 반동 시스템
-         *
-         * 상세설명
-         * 포신(gun)은 recoilStrength 만큼의 반동을 받음
-         * 포신의 포구가 상단(y축)을 바라보고 있지 않을 경우
-         * 포의 움직임은 body의 중앙이 아니라 위 아래를 기준으로 이루어짐
-         * 이를 보완하기 위해서 삼각함수 사용
-         *
-         * 코사인함수: 반동 애니메이션을 위해 보정되야 할 x값을 계산
-         * 사인함수: 반동 애니메이션을 위해 보정되어야 할 y값을 계산
-         *
-         * 내부 각도는 라디안으로 계산됨
-         * 마우스가 바라보는 각도 * MathUtils.degreesToRadians 를 곱하면 라디안이 됨
-         */
-
+        // 포 반동 시스템
         val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank1RecoilData.recoilStrength
         val yRecoil: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank1RecoilData.recoilStrength
 

@@ -16,7 +16,7 @@ class Tank6Ranger(
     override val tankDamage: Float = 10f
     override val tankBulletSize: Float = 10f
     override val tankReloadSpeed: Float = 10f
-    private var tank1RecoilData = RecoilData(recoilAmount = 0.6f)
+    private var tank6RecoilData = RecoilData(recoilAmount = 0.6f)
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.
@@ -39,9 +39,9 @@ class Tank6Ranger(
      */
 
     override fun update(delta: Float) {
-        tank1RecoilData = recoil(tank1RecoilData.recoilTime,
-            tank1RecoilData.recoilStrength,
-            tank1RecoilData.recoilAmount,
+        tank6RecoilData = recoil(tank6RecoilData.recoilTime,
+            tank6RecoilData.recoilStrength,
+            tank6RecoilData.recoilAmount,
             tankReloadSpeed)
 
         super.update(delta)
@@ -53,25 +53,8 @@ class Tank6Ranger(
         val mouseY = Gdx.graphics.height - Gdx.input.y.toFloat()  // Y축 반전
         val angle = MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees
 
-        /**
-         * 포 반동 시스템
-         *
-         * 상세설명
-         * 포신(gun)은 recoilStrength 만큼의 반동을 받음
-         * 포신의 포구가 상단(y축)을 바라보고 있지 않을 경우
-         * 포의 움직임은 body의 중앙이 아니라 위 아래를 기준으로 이루어짐
-         * 이를 보완하기 위해서 삼각함수 사용
-         *
-         * 코사인함수: 반동 애니메이션을 위해 보정되야 할 x값을 계산
-         * 사인함수: 반동 애니메이션을 위해 보정되어야 할 y값을 계산
-         *
-         * 내부 각도는 라디안으로 계산됨
-         * 마우스가 바라보는 각도 * MathUtils.degreesToRadians 를 곱하면 라디안이 됨
-         */
-
-
-        val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank1RecoilData.recoilStrength
-        val yRecoil: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank1RecoilData.recoilStrength
+        val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank6RecoilData.recoilStrength
+        val yRecoil: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank6RecoilData.recoilStrength
 
         batch.draw(gunPed, // 텍스쳐
             x - gunPedWidth / 2f, // 위치
