@@ -66,8 +66,9 @@ abstract class GameWorld(
 
     // 카메라 오프셋 — 월드의 어느 지점이 화면 좌하단에 오는지.
     //   이 두 값만 바꾸면 카메라가 움직이는 효과가 난다.
-    var offsetX: Float = 0f
-    var offsetY: Float = 0f
+    //   (월드 좌표 - 화면 좌표) / 2 == 카메라가 화면 정중앙을 바라보게 됨
+    var offsetX: Float = (worldWidth - screenWidth) / 2f
+    var offsetY: Float = (worldHeight - screenHeight) / 2f
 
     // 등록된 객체들만 update/draw 된다.
     // private 으로 감춘 이유: 외부가 직접 add/remove 하면

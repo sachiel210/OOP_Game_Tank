@@ -1,0 +1,12 @@
+# Gradle
+.gradle/
+build/
+
+# Kotlin 컴파일 결과
+*.class
+
+# 로컬 환경 설정
+local.properties
+
+# IntelliJ IDEA (workspace.xml은 .idea/.gitignore에서 이미 처리)
+*.iml
