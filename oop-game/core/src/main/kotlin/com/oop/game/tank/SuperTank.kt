@@ -33,6 +33,7 @@ abstract class SuperTank( // GameObject의 자식 클래스
     private val worldWidth: Float,
     private val worldHeight: Float
 ) : GameObject(x, y, 10f, 10f)
+{
     /**
      * 탱크 키우기 게임 탱크 주요 속성
      * 1. 체력: 탱크의 고유 체력
