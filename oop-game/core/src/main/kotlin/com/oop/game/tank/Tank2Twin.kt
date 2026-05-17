@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.InputHandler
-import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
+import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산, 포신 반동 계산을 위한 수학 클래스
 
 class Tank2Twin(
     x: Float,
@@ -20,6 +20,7 @@ class Tank2Twin(
     private var tank2RecoilDataLeft = RecoilData(recoilAmount = 0.3f)
     private var tank2RecoilDataRight = RecoilData(recoilAmount = 0.3f)
     private var isLeft: Boolean = true
+    private var isFiring: Boolean = false
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.
@@ -44,25 +45,30 @@ class Tank2Twin(
 
     override fun update(delta: Float) {
         if ((Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick))){
+            isFiring = true
+        }
+        if (isFiring) {
             if (isLeft) {
+                tank2RecoilDataLeft = recoil(
+                    tank2RecoilDataLeft.recoilTime,
+                    tank2RecoilDataLeft.recoilStrength,
+                    tank2RecoilDataLeft.recoilAmount,
+                    tankReloadSpeed
+                )
                 if (tank2RecoilDataLeft.recoilTime == 0f) isLeft = false
-            }
-            else {
-                if (tank2RecoilDataRight.recoilTime == 0f) isLeft = true
+            } else {
+                tank2RecoilDataRight = recoil(
+                    tank2RecoilDataRight.recoilTime,
+                    tank2RecoilDataRight.recoilStrength,
+                    tank2RecoilDataRight.recoilAmount,
+                    tankReloadSpeed
+                )
+                if (tank2RecoilDataRight.recoilTime == 0f) {
+                    isLeft = true
+                    isFiring = false
+                }
             }
         }
-        if (isLeft) {
-            tank2RecoilDataLeft = recoil(tank2RecoilDataLeft.recoilTime,
-                tank2RecoilDataLeft.recoilStrength,
-                tank2RecoilDataLeft.recoilAmount,
-                tankReloadSpeed)
-        } else {
-            tank2RecoilDataRight = recoil(tank2RecoilDataRight.recoilTime,
-                tank2RecoilDataRight.recoilStrength,
-                tank2RecoilDataRight.recoilAmount,
-                tankReloadSpeed)
-        }
-
         super.update(delta)
     }
 

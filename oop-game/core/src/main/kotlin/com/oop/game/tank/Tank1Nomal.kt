@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
+import com.oop.game.InputHandler
 
 class Tank1Nomal(
     x: Float,
@@ -39,7 +40,8 @@ class Tank1Nomal(
         tank1RecoilData = recoil(tank1RecoilData.recoilTime,
             tank1RecoilData.recoilStrength,
             tank1RecoilData.recoilAmount,
-            tankReloadSpeed)
+            tankReloadSpeed,
+            triggerFire = Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick))
 
         super.update(delta)
     }

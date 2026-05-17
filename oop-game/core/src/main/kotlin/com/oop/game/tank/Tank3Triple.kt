@@ -17,10 +17,11 @@ class Tank3Triple(
     override val tankDamage: Float = 8f
     override val tankBulletSize: Float = 5f
     override val tankReloadSpeed: Float = 20f
-    private var tank2RecoilDataLeft = RecoilData(recoilAmount = 0.3f)
-    private var tank2RecoilDataRight = RecoilData(recoilAmount = 0.3f)
-    private var tank2RecoilDataMiddle = RecoilData(recoilAmount = 0.2f)
+    private var tank3RecoilDataLeft = RecoilData(recoilAmount = 0.3f)
+    private var tank3RecoilDataRight = RecoilData(recoilAmount = 0.3f)
+    private var tank3RecoilDataMiddle = RecoilData(recoilAmount = 0.2f)
     private var fireOrder: Float = 0f
+    private var isFiring: Boolean = false
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.
@@ -48,33 +49,32 @@ class Tank3Triple(
 
     override fun update(delta: Float) {
         if ((Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick))){
+            isFiring = true
+        }
+        if (isFiring){
             if (fireOrder == 0f) {
-                if (tank2RecoilDataLeft.recoilTime == 0f) fireOrder = 1f
-            }
-            else if (fireOrder == 1f) {
-                if (tank2RecoilDataRight.recoilTime == 0f) fireOrder = 2f
+                tank3RecoilDataLeft = recoil(tank3RecoilDataLeft.recoilTime,
+                    tank3RecoilDataLeft.recoilStrength,
+                    tank3RecoilDataLeft.recoilAmount,
+                    tankReloadSpeed)
+                if (tank3RecoilDataLeft.recoilTime == 0f) fireOrder = 1f
+            } else if (fireOrder == 1f){
+                tank3RecoilDataRight = recoil(tank3RecoilDataRight.recoilTime,
+                    tank3RecoilDataRight.recoilStrength,
+                    tank3RecoilDataRight.recoilAmount,
+                    tankReloadSpeed)
+                if (tank3RecoilDataRight.recoilTime == 0f) fireOrder = 2f
             } else {
-                if (tank2RecoilDataMiddle.recoilTime == 0f) fireOrder = 0f
+                tank3RecoilDataMiddle = recoil(tank3RecoilDataMiddle.recoilTime,
+                    tank3RecoilDataMiddle.recoilStrength,
+                    tank3RecoilDataMiddle.recoilAmount,
+                    tankReloadSpeed)
+                if (tank3RecoilDataMiddle.recoilTime == 0f) {
+                    isFiring = false
+                    fireOrder = 0f
+                }
             }
         }
-        if (fireOrder == 0f) {
-            tank2RecoilDataLeft = recoil(tank2RecoilDataLeft.recoilTime,
-                tank2RecoilDataLeft.recoilStrength,
-                tank2RecoilDataLeft.recoilAmount,
-                tankReloadSpeed)
-        } else if (fireOrder == 1f){
-            tank2RecoilDataRight = recoil(tank2RecoilDataRight.recoilTime,
-                tank2RecoilDataRight.recoilStrength,
-                tank2RecoilDataRight.recoilAmount,
-                tankReloadSpeed)
-
-        } else {
-            tank2RecoilDataMiddle = recoil(tank2RecoilDataMiddle.recoilTime,
-                tank2RecoilDataMiddle.recoilStrength,
-                tank2RecoilDataMiddle.recoilAmount,
-                tankReloadSpeed)
-        }
-
         super.update(delta)
     }
 
@@ -82,14 +82,14 @@ class Tank3Triple(
         // 마우스와 탱크 각도 확인
         val angle = calAngle()
 
-        val xRecoilLeft: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank2RecoilDataLeft.recoilStrength
-        val yRecoilLeft: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank2RecoilDataLeft.recoilStrength
+        val xRecoilLeft: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank3RecoilDataLeft.recoilStrength
+        val yRecoilLeft: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank3RecoilDataLeft.recoilStrength
 
-        val xRecoilRight: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank2RecoilDataRight.recoilStrength
-        val yRecoilRight: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank2RecoilDataRight.recoilStrength
+        val xRecoilRight: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank3RecoilDataRight.recoilStrength
+        val yRecoilRight: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank3RecoilDataRight.recoilStrength
 
-        val xRecoilMiddle: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank2RecoilDataMiddle.recoilStrength
-        val yRecoilMiddle: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank2RecoilDataMiddle.recoilStrength
+        val xRecoilMiddle: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank3RecoilDataMiddle.recoilStrength
+        val yRecoilMiddle: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank3RecoilDataMiddle.recoilStrength
 
         batch.draw(gunLeft, // 텍스쳐
             x - gunLeftWidth / 2f - xRecoilLeft - 20f, // 위치

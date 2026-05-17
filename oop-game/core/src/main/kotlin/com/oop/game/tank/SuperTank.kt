@@ -66,11 +66,17 @@ abstract class SuperTank( // GameObject의 자식 클래스
     }
 
     // 포 발사 반동 애니메이션 함수
-    fun recoil(recoilTime: Float, recoilStrength: Float, recoilAmount: Float, tankReloadSpeed: Float): RecoilData {
+    fun recoil(
+        recoilTime: Float,
+        recoilStrength: Float,
+        recoilAmount: Float,
+        tankReloadSpeed: Float,
+        triggerFire: Boolean = true
+    ): RecoilData {
         var time: Float = recoilTime
         var strength: Float = recoilStrength
 
-        if (Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) {
+        if (triggerFire) {
             if (time == 0f) time = 200f / tankReloadSpeed
         }
 
