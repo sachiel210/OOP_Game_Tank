@@ -32,8 +32,8 @@ abstract class SuperTank( // GameObject의 자식 클래스
     y: Float,
     private val worldWidth: Float,
     private val worldHeight: Float
-) : GameObject(x, y, 10f, 10f) {
-
+) : GameObject(x, y, 10f, 10f)
+{
     /**
      * 탱크 키우기 게임 탱크 주요 속성
      * 1. 체력: 탱크의 고유 체력
@@ -66,11 +66,17 @@ abstract class SuperTank( // GameObject의 자식 클래스
     }
 
     // 포 발사 반동 애니메이션 함수
-    fun recoil(recoilTime: Float, recoilStrength: Float, recoilAmount: Float, tankReloadSpeed: Float): RecoilData {
+    fun recoil(
+        recoilTime: Float,
+        recoilStrength: Float,
+        recoilAmount: Float,
+        tankReloadSpeed: Float,
+        triggerFire: Boolean = true
+    ): RecoilData {
         var time: Float = recoilTime
         var strength: Float = recoilStrength
 
-        if (Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) {
+        if (triggerFire) {
             if (time == 0f) time = 200f / tankReloadSpeed
         }
 

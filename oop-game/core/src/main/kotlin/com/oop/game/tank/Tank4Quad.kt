@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
+import com.oop.game.InputHandler
 
 class Tank4Quad(
     x: Float,
@@ -16,7 +17,7 @@ class Tank4Quad(
     override val tankDamage: Float = 10f
     override val tankBulletSize: Float = 10f
     override val tankReloadSpeed: Float = 10f
-    private var tank1RecoilData = RecoilData(recoilAmount = 0.3f)
+    private var tank4RecoilData = RecoilData(recoilAmount = 0.3f)
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.
@@ -39,10 +40,11 @@ class Tank4Quad(
      */
 
     override fun update(delta: Float) {
-        tank1RecoilData = recoil(tank1RecoilData.recoilTime,
-            tank1RecoilData.recoilStrength,
-            tank1RecoilData.recoilAmount,
-            tankReloadSpeed)
+        tank4RecoilData = recoil(tank4RecoilData.recoilTime,
+            tank4RecoilData.recoilStrength,
+            tank4RecoilData.recoilAmount,
+            tankReloadSpeed,
+            triggerFire = Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick))
 
         super.update(delta)
     }
@@ -52,8 +54,8 @@ class Tank4Quad(
         val angle = calAngle()
 
         // 포 반동 시스템
-        val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank1RecoilData.recoilStrength
-        val yRecoil: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank1RecoilData.recoilStrength
+        val xRecoil: Float = MathUtils.cos(angle * MathUtils.degreesToRadians) * tank4RecoilData.recoilStrength
+        val yRecoil: Float = MathUtils.sin(angle * MathUtils.degreesToRadians) * tank4RecoilData.recoilStrength
 
         batch.draw(gun1Top, // 텍스쳐
             x - gunWidth / 2f - xRecoil, // 위치
