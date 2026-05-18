@@ -7,13 +7,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.GameWorld
 import com.oop.game.InputHandler
 import com.oop.game.enemy.SuperEnemy
-import com.oop.game.tank.SuperTank
+import com.oop.game.example.Bullet1Normal
+import com.badlogic.gdx.Input
+import com.oop.game.tank.* // 탱크 패키지 한 번에 불러오기
 import kotlin.math.floor
+import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
+
 
 /**
  * ════════════════════════════════════════════════════════════
  *  게임 월드 예제 — Player vs Enemy 회피 게임 (이미지 사용).
- * ════════════════════════════════════════════════════════════
+ * ════════════════════════════════════════════════════════════ㅁㅈㅇ
  *
  *  GameWorld 를 상속해 만든 가장 작은 플레이 가능한 예제.
  *  학생은 이 파일을 참고해서 자기만의 월드를 만들면 된다.
@@ -70,7 +74,7 @@ class ExampleWorld( // Gameworld의 자식 클래스
 
     // 플레이어 — 월드 중앙 하단에서 시작.
     //   월드 크기를 함께 넘겨서, 경계 밖으로 못 나가게 한다.
-    private val player = SuperTank(
+    private val player = Tank3Triple(
         x = worldWidth / 2,   // 가로 30 의 절반을 빼서 정확히 중앙
         y = worldHeight / 2,
         worldWidth = worldWidth,
@@ -152,6 +156,24 @@ class ExampleWorld( // Gameworld의 자식 클래스
         //   현재 예제에선 아무 것도 안 죽으므로 영향 없지만,
         //   bullet/enemy 가 추가될 때를 대비한 표준 흐름이다.
         removeDead()
+
+        // --- 4) 발사 로직 ----
+        if (Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) {
+            val bulletX = player.x
+            val bulletY = player.y
+
+            val mouseX = Gdx.input.x.toFloat() + offsetX
+            val mouseY = (screenHeight - Gdx.input.y.toFloat()) + offsetY
+
+            val dx = mouseX - bulletX
+            val dy = mouseY - bulletY
+            val len = Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
+            val dirX = dx / len
+            val dirY = dy / len
+
+            add(Bullet1Normal(bulletX, bulletY, dirX, dirY))
+        }
+
     }
 
     /** GAME_OVER 상태에서 매 프레임 처리 — ESC 입력만 감시한다. */

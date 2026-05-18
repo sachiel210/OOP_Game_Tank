@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
 /**
- * 게임 한 장면 = '월드 하나' 의 추상 기본 클래스.
+ * 게임 한 장면 = '월드 하나' 의 추상 기본 클래스..
  *
  * ────────────────────────────────────────────────────────────
  *  왜 이런 게 필요한가?

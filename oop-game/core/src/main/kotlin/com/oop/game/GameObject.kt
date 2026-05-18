@@ -95,6 +95,7 @@ abstract class GameObject(
      * 매번 새 Rectangle 을 만든다. 성능이 극한으로 중요한 곳이라면 재사용해야
      * 하지만, 이 강의의 규모에서는 가독성을 더 우선한다.
      */
+
     fun getBounds(): Rectangle = Rectangle(x, y, width, height)
 
     /**
