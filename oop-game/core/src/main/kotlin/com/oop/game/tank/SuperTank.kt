@@ -48,7 +48,8 @@ abstract class SuperTank( // GameObject의 자식 클래스
     abstract val tankDamage: Float // 텡크 고유 데미지: 값이 클 수록 공격력이 높음
     abstract val tankBulletSize: Float // 탱크 고유 총알 크기: 값이 클 수록 총알이 커짐
     abstract val tankReloadSpeed: Float // 탱크 고유 발사 속도: 값이 클 수록 발사속도가 빠름
-    protected val tankSpeed = 200f
+    var tankSpeed = 200f
+        private set
 
     // 이미지 로딩.
     //   Gdx.files.internal: 클래스패스(자원 폴더)에서 파일을 찾아 읽는다.

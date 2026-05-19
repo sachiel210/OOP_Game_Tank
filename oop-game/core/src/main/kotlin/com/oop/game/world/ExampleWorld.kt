@@ -32,6 +32,14 @@ class ExampleWorld(
         worldHeight = worldHeight
     )
 
+    private val healthBar = TankHealthBar(
+        x = worldWidth / 2,
+        y = worldHeight / 2,
+        worldWidth = worldWidth,
+        worldHeight = worldHeight,
+        player.tankSpeed
+    )
+
     private val spawnInterval = 3f
     private var spawnTimer = 0f
 
@@ -48,12 +56,13 @@ class ExampleWorld(
     private val tileSize = 64f
 
     init {
-        add(player)
         repeat(5) {
             val spawnX = (Math.random() * worldWidth).toFloat()
             val spawnY = (Math.random() * worldHeight).toFloat()
             add(DotEnemy(spawnX, spawnY))
         }
+        add(player)
+        add(healthBar)
     }
 
     override fun update(delta: Float) {
@@ -127,10 +136,10 @@ class ExampleWorld(
 
         val rand = (Math.random() * 100).toInt()
         val enemy = when {
-            rand < spawnWeights[0]                                          -> DotEnemy(spawnX, spawnY)
+            rand < spawnWeights[0]                                         -> DotEnemy(spawnX, spawnY)
             rand < spawnWeights[0] + spawnWeights[1]                       -> TriangleEnemy(spawnX, spawnY)
             rand < spawnWeights[0] + spawnWeights[1] + spawnWeights[2]     -> SquardEnemy(spawnX, spawnY)
-            else                                                            -> PentagonEnemy(spawnX, spawnY)
+            else                                                           -> PentagonEnemy(spawnX, spawnY)
         }
         add(enemy)
     }
@@ -168,13 +177,6 @@ class ExampleWorld(
     }
 
     private fun drawHud() {
-        drawTextOnScreen(
-            text = "HP: 3",
-            x = 10f,
-            y = screenHeight - 10f,
-            color = Color.YELLOW,
-            scale = 1.2f
-        )
         drawTextInWorld(
             text = "WORLD CENTER",
             worldX = worldWidth / 2 - 70f,
