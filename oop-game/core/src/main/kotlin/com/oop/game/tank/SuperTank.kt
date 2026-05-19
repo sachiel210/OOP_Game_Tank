@@ -43,7 +43,8 @@ abstract class SuperTank( // GameObject의 자식 클래스
      * 탱크 레벨업 시 위 스탯에 가중치 추가
      */
 
-    abstract val tankHealthPoint: Float // 탱크 고유 체력: 값이 클 수록 체력이 높음
+    abstract var tankHealthPoint: Float // 탱크 고유 체력: 값이 클 수록 체력이 높음
+    abstract val tankMaxHealthPoint: Float // 탱크의 최대 체력
     abstract val tankDamage: Float // 텡크 고유 데미지: 값이 클 수록 공격력이 높음
     abstract val tankBulletSize: Float // 탱크 고유 총알 크기: 값이 클 수록 총알이 커짐
     abstract val tankReloadSpeed: Float // 탱크 고유 발사 속도: 값이 클 수록 발사속도가 빠름

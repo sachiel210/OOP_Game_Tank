@@ -13,7 +13,8 @@ class Tank6Ranger(
     private val worldHeight: Float
 ): SuperTank(x, y, worldWidth, worldHeight) {
 
-    override val tankHealthPoint: Float = 100f
+    override var tankHealthPoint: Float = 100f
+    override val tankMaxHealthPoint: Float = 100f
     override val tankDamage: Float = 10f
     override val tankBulletSize: Float = 10f
     override val tankReloadSpeed: Float = 10f

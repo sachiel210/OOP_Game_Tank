@@ -13,7 +13,8 @@ class Tank3Triple(
     private val worldHeight: Float
 ): SuperTank(x, y, worldWidth, worldHeight) {
 
-    override val tankHealthPoint: Float = 200f
+    override var tankHealthPoint: Float = 100f
+    override val tankMaxHealthPoint: Float = 100f
     override val tankDamage: Float = 8f
     override val tankBulletSize: Float = 5f
     override val tankReloadSpeed: Float = 20f
