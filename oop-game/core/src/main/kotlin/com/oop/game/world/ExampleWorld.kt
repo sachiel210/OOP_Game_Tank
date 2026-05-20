@@ -33,10 +33,20 @@ class ExampleWorld(
     )
 
     private val healthBar = TankHealthBar(
-        x = worldWidth / 2,
-        y = worldHeight / 2,
-        worldWidth = worldWidth,
-        worldHeight = worldHeight,
+        worldWidth / 2,
+        worldHeight / 2,
+        worldWidth,
+        worldHeight,
+        player.tankSpeed,
+        player.tankHealthPoint,
+        player.tankMaxHealthPoint
+    )
+
+    private val expBar = TankExpBar(
+        offsetX + screenWidth / 2,
+        offsetY + screenHeight / 2,
+        worldWidth,
+        worldHeight,
         player.tankSpeed
     )
 
@@ -61,6 +71,7 @@ class ExampleWorld(
             val spawnY = (Math.random() * worldHeight).toFloat()
             add(DotEnemy(spawnX, spawnY))
         }
+        add(expBar)
         add(player)
         add(healthBar)
     }
@@ -83,8 +94,20 @@ class ExampleWorld(
         offsetX = offsetX.coerceIn(0f, worldWidth - screenWidth)
         offsetY = offsetY.coerceIn(0f, worldHeight - screenHeight)
 
+        // 경험치 바 위치 갱신
+        expBar.x = offsetX + screenWidth / 2
+        expBar.y = offsetY + screenHeight / 2 - 320f
+
         // 1) 게임 객체 갱신
         updateAllObjects(delta)
+
+        if (Gdx.input.isKeyJustPressed(InputHandler.E)){ // 자해
+            player.tankHealthPoint = player.tankHealthPoint - 20f
+            if (player.tankHealthPoint < 0f) {
+                player.tankHealthPoint = 0f
+            }
+        }
+        healthBar.tankHealthPoint = player.tankHealthPoint
 
         // 2) 충돌 체크 — 모든 적과 플레이어 충돌 확인
         for (obj in getObjects()) {
