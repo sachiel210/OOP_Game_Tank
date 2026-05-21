@@ -71,9 +71,9 @@ class ExampleWorld(
             val spawnY = (Math.random() * worldHeight).toFloat()
             add(DotEnemy(spawnX, spawnY))
         }
-        add(expBar)
         add(player)
         add(healthBar)
+        add(expBar)
     }
 
     override fun update(delta: Float) {
