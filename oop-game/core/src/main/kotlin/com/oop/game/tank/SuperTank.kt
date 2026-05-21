@@ -25,6 +25,8 @@ import com.oop.game.InputHandler
  * @param worldWidth/Height: 월드 크기를 받아 경계 밖으로 못 나가게 제한하는 용도.
  */
 
+// 반동 관련 변수들을 한 번에 정리해 놓은 RecoilData 데이터 클래스
+// 하단 recoil 변수에서 한 번에 여러 값들을 반환하기 위해 사용된다
 data class RecoilData(var recoilTime: Float = 0f, var recoilStrength: Float = 0f, val recoilAmount: Float)
 
 abstract class SuperTank( // GameObject의 자식 클래스
@@ -61,39 +63,40 @@ abstract class SuperTank( // GameObject의 자식 클래스
     private val bodyWidth = body.width / tankProportion // 탱크 기본 너비
     private val bodyHeight = body.height / tankProportion // 탱크 기본 높이
 
+    // 이 파트는 코드 확인 위해 AI 도움 받았습니다.
     fun calAngle():Float { // 마우스 각도 계산 함수
-        val mouseX = Gdx.input.x.toFloat()
+        val mouseX = Gdx.input.x.toFloat() // x위치 확인
         val mouseY = Gdx.graphics.height - Gdx.input.y.toFloat()  // Y축 반전
-        return  MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees
+        return MathUtils.atan2(mouseY - y, mouseX - x) * MathUtils.radiansToDegrees // 마우스 각도 반환
     }
 
     // 포 발사 반동 애니메이션 함수
     fun recoil(
-        recoilTime: Float,
-        recoilStrength: Float,
-        recoilAmount: Float,
-        tankReloadSpeed: Float,
-        triggerFire: Boolean = true
+        recoilTime: Float, // 포신이 몇 프레임동안 애니메이션을 재생했는지
+        recoilStrength: Float, // 한 프레임이 얼마나 포신이 이동하는지
+        recoilAmount: Float, // 포신이 얼마나 강하게 반동을 겪는지
+        tankReloadSpeed: Float, // 탱크 재장전 속도: 재장전 속도가 클 수록 애니메이션이 빨리 지나감
+        triggerFire: Boolean = true // 현재 애니메이션이 재생중인지 확인할 수 있는 변수
     ): RecoilData {
         var time: Float = recoilTime
         var strength: Float = recoilStrength
 
-        if (triggerFire) {
-            if (time == 0f) time = 200f / tankReloadSpeed
+        if (triggerFire) { // 현재 발사 중인지 확인
+            if (time == 0f) time = 200f / tankReloadSpeed // 발사 시작을 위해 타이머 설정
         }
 
-        if (time > 0) {
-            if (time > 100f / tankReloadSpeed) strength += recoilAmount * tankReloadSpeed
-            else strength -= recoilAmount * tankReloadSpeed
-            time -= 1f
+        if (time > 0) { // 타이머가 1보다 크다면?
+            if (time > 100f / tankReloadSpeed) strength += recoilAmount * tankReloadSpeed // 타이머가 절반을 지나지 않았다면 포가 탱크 몸체 내부로 들어가도록 유도
+            else strength -= recoilAmount * tankReloadSpeed // 타이머가 절반을 지났다면 포가 탱크 몸체 밖으로 나오도록 유도
+            time -= 1f // 시간 감소
         }
 
-        if (time <= 0f) {
-            time = 0f
-            strength = 0f
+        if (time <= 0f) { // 타이머가 0이하가 되었다면
+            time = 0f // 마이너스가 됐을 경우 대비하여 예외처리
+            strength = 0f // 반동 정도도 0으로 초기화
         }
-        return RecoilData(time, strength, recoilAmount)
-    } // 포 반동 애니메이션 함수
+        return RecoilData(time, strength, recoilAmount) // 값 반환
+    }
 
     override fun update(delta: Float) {
         if (InputHandler.isKeyPressed(InputHandler.LEFT))  x -= tankSpeed * delta
@@ -114,7 +117,7 @@ abstract class SuperTank( // GameObject의 자식 클래스
      *   원본 이미지가 30x30 이고 w=30, h=30 이면 1:1 그대로 그려진다.
      */
     override fun draw(batch: SpriteBatch) {
-        batch.draw(
+        batch.draw( // body는 모든 탱크 객체가 동일함. 때문에 부모 객체에서 그림
             body,
             x - bodyWidth / 2f, // 탱크 중앙 위치
             y - bodyHeight / 2f, // 탱크 중앙 위치

@@ -6,6 +6,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 import com.oop.game.InputHandler
 
+/**
+ *  이름: Nomal
+ *  역할: 게임 시작 시 기본으로 주어지는 탱크
+ *  특징: 단발, 약한 데미지, 적은 체력
+ *  특이사항: 없음
+ */
+
+
 class Tank1Nomal(
     x: Float,
     y: Float,

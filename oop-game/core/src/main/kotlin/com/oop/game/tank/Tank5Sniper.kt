@@ -6,6 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 import com.oop.game.InputHandler
 
+/**
+ *  이름: Sniper
+ *  역할: 15레벨 달성 시 해금 가능한 탱크
+ *  특징: 단발, 강한 데미지, 적은 체력
+ *  특이사항: 이름은 스나이퍼인데, 실제 사거리 관련 버프는 없음
+ */
+
 class Tank5Sniper(
     x: Float,
     y: Float,

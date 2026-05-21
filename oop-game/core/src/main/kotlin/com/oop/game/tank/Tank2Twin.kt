@@ -6,6 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.InputHandler
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산, 포신 반동 계산을 위한 수학 클래스
 
+/**
+ *  이름: Twin
+ *  역할: 15레벨 달성 시 해금 가능한 탱크
+ *  특징: 쌍발, 약한 데미지, 빠른 연사속도
+ *  특이사항: 포신이 두개라서 애니메이션이 복잡함
+ */
+
 class Tank2Twin(
     x: Float,
     y: Float,

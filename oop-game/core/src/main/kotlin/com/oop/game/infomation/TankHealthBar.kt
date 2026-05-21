@@ -1,4 +1,4 @@
-package com.oop.game.tank
+package com.oop.game.infomation
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
@@ -71,7 +71,7 @@ class TankHealthBar( // GameObject의 자식 클래스
 
         batch.draw(
             healthBarLeftSide,
-            x - backGroundWidth / 2f - healthBarLeftSideWidth / 2f + 4f, // 체력바 좌측 위치
+            x - backGroundWidth / 2f + 2f, // 체력바 좌측 위치
             y - healthBarLeftSideHeight / 2f - 50f, // 체력바 배경과 같은 위치
             healthBarLeftSideWidth,
             healthBarLeftSideHeight
@@ -79,15 +79,15 @@ class TankHealthBar( // GameObject의 자식 클래스
 
         batch.draw(
             healthBarMiddleSide,
-            x - backGroundWidth / 2f + healthBarLeftSideWidth / 2f + 4f, // 체력바 좌측 위치
+            x - backGroundWidth / 2f + healthBarLeftSideWidth + 2f, // 체력바 좌측 위치
             y - healthBarMiddleSideHeight / 2f  - 50f, // 체력바 배경과 같은 위치
-            healthBarMiddleSideWidth * 9.4f * tankCurrentHealth,
+            healthBarMiddleSideWidth * 9.2f * tankCurrentHealth,
             healthBarMiddleSideHeight
         )
 
         batch.draw(
             healthBarRightSide,
-            x - backGroundWidth / 2f + 4f + healthBarMiddleSideWidth * 9.4f * tankCurrentHealth, // 체력바 좌측 위치
+            x - backGroundWidth / 2f + healthBarLeftSideWidth + 2f + healthBarMiddleSideWidth * 9.2f * tankCurrentHealth, // 체력바 좌측 위치
             y - healthBarRightSideHeight / 2f - 50f, // 체력바 배경과 같은 위치
             healthBarRightSideWidth,
             healthBarRightSideHeight

@@ -6,6 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 import com.oop.game.InputHandler
 
+/**
+ *  이름: Quad
+ *  역할: 30레벨 달성 시 해금 가능한 탱크
+ *  특징: 4발, 표준 데미지, 4방향 사격
+ *  특이사항: 동서남북 사격 가능함. 사각이 없음. 게임 특성상 얘가 가장 좋은 탱크일듯
+ */
+
 class Tank4Quad(
     x: Float,
     y: Float,

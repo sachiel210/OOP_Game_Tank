@@ -8,9 +8,9 @@ import com.oop.game.GameWorld
 import com.oop.game.InputHandler
 import com.oop.game.example.enempyList.*
 import com.oop.game.example.Bullet1Normal
+import com.oop.game.infomation.*
 import com.oop.game.tank.*
 import kotlin.math.floor
-import com.badlogic.gdx.math.MathUtils
 
 
 class ExampleWorld(
@@ -25,6 +25,8 @@ class ExampleWorld(
         GAME_OVER
     }
 
+    // player 변수
+    // 장기적으로 리스트 또는 배열로 관리되도록 수정 필요함
     private val player = Tank3Triple(
         x = worldWidth / 2,
         y = worldHeight / 2,
@@ -32,6 +34,8 @@ class ExampleWorld(
         worldHeight = worldHeight
     )
 
+    // 체력바 인스턴스
+    // 탱크를 따라다니기 때문에 탱크 속도를 인수로 넣음
     private val healthBar = TankHealthBar(
         worldWidth / 2,
         worldHeight / 2,
@@ -42,17 +46,17 @@ class ExampleWorld(
         player.tankMaxHealthPoint
     )
 
+    // 경험치바 인스턴스
+    // 카메라를 따라다님
     private val expBar = TankExpBar(
         offsetX + screenWidth / 2,
         offsetY + screenHeight / 2,
         worldWidth,
-        worldHeight,
-        player.tankSpeed
+        worldHeight
     )
 
     private val spawnInterval = 3f
     private var spawnTimer = 0f
-
     private val spawnWeights = listOf(
         40,  // DotEnemy      40%
         30,  // TriangleEnemy 30%
@@ -71,9 +75,9 @@ class ExampleWorld(
             val spawnY = (Math.random() * worldHeight).toFloat()
             add(DotEnemy(spawnX, spawnY))
         }
-        add(expBar)
         add(player)
         add(healthBar)
+        add(expBar)
     }
 
     override fun update(delta: Float) {
@@ -95,19 +99,35 @@ class ExampleWorld(
         offsetY = offsetY.coerceIn(0f, worldHeight - screenHeight)
 
         // 경험치 바 위치 갱신
-        expBar.x = offsetX + screenWidth / 2
-        expBar.y = offsetY + screenHeight / 2 - 320f
+        expBar.x = offsetX + screenWidth / 2 // 화면 중앙에 위치
+        expBar.y = offsetY + screenHeight / 2 - 320f // 320만큼 빼서 화면 하단에 배치되도록 유도
 
         // 1) 게임 객체 갱신
         updateAllObjects(delta)
 
-        if (Gdx.input.isKeyJustPressed(InputHandler.E)){ // 자해
-            player.tankHealthPoint = player.tankHealthPoint - 20f
-            if (player.tankHealthPoint < 0f) {
-                player.tankHealthPoint = 0f
+        // 테스트를 위한 체력 자해 시스템
+        if (Gdx.input.isKeyJustPressed(InputHandler.E)){ // E를 누르는 것이 트리거로 발동됨
+            player.tankHealthPoint = player.tankHealthPoint - 20f // 20만큼 체력을 제거함
+            if (player.tankHealthPoint < 0f) { // 체력이 0보다 작으면
+                player.tankHealthPoint = 0f // 0 이하로 가지 않도록 예외처리
             }
         }
-        healthBar.tankHealthPoint = player.tankHealthPoint
+        healthBar.tankHealthPoint = player.tankHealthPoint // 체력바와 탱크의 체력을 연동시켜 줌
+
+        // 레벨링 시스템
+        // 문제: 레벨 2개 이상을 한 프레임에 올려야 하는 상황이 되면?
+        // 정답: 경험치 바가 작렬하게 터져버린다. 계산에 2프레임 이상 필요함
+        // for 문 이용하면 해결 가능할지도. 그건 그냥 후반에 AI로 짤 때 시켜보자
+        if (Gdx.input.isKeyJustPressed(InputHandler.R)){
+            if (expBar.expPoint + 900f > expBar.currentMaxExp) { // 레벨업을 할 만큼 충분한 경험치가 모였는지 검사
+                expBar.expPoint -= expBar.currentMaxExp // 현재 레벨에서 획득한 경험치는 전부 제거함 (시각효과 위해)
+                expBar.expPoint += 900f // 획득한 경험치만큼 현재 경험치에 추가함
+                expBar.currentMaxExp = expBar.currentMaxExp * 1.2f // 새로운 레벨은 레벨업 위해 필요 경험치가 1.2배 증가함
+                expBar.currentLevel += 1 // 레벨 1 증가
+            } else {
+                expBar.expPoint += 900f // 레벨업에 충분한 경험치가 모이지 않았을 때는 그냥 더함
+            }
+        }
 
         // 2) 충돌 체크 — 모든 적과 플레이어 충돌 확인
         for (obj in getObjects()) {
@@ -152,7 +172,6 @@ class ExampleWorld(
         }
     }
 
-    // updateInPlay() 밖으로 꺼낸 함수
     private fun spawnRandomEnemy() {
         val spawnX = (Math.random() * worldWidth).toFloat()
         val spawnY = (Math.random() * worldHeight).toFloat()
@@ -205,6 +224,14 @@ class ExampleWorld(
             worldX = worldWidth / 2 - 70f,
             worldY = worldHeight / 2,
             color = Color.CYAN,
+            scale = 1.5f
+        )
+
+        drawTextOnScreen( // 레벨 표시
+            text = "LV. ${expBar.currentLevel}",
+            x = screenWidth / 2 - 20f,   // 원하는 위치로 조정
+            y = 50f,
+            color = Color.WHITE,
             scale = 1.5f
         )
     }

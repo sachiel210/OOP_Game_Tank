@@ -6,6 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 import com.oop.game.InputHandler
 
+/**
+ *  이름: Destroyer
+ *  역할: 30레벨 달성 시 해금 가능한 탱크
+ *  특징: 단발, 초강력 데미지, 매우 높은 체력
+ *  특이사항: 한 발에 모든 걸 걸은 탱크.
+ */
+
 class Tank7Destroyer(
     x: Float,
     y: Float,

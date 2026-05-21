@@ -6,6 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.InputHandler
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 
+/**
+ *  이름: Triple
+ *  역할: 30레벨 달성 시 해금 가능한 탱크
+ *  특징: 삼발, 약한 데미지, 초고속 연사
+ *  특이사항: 포신 3개, 포 객체도 3개, 애니메이션 작업량도 3배
+ */
+
 class Tank3Triple(
     x: Float,
     y: Float,

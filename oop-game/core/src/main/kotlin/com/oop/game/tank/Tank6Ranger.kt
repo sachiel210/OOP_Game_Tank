@@ -6,6 +6,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils // 마우스 각도 계산
 import com.oop.game.InputHandler
 
+/**
+ *  이름: Ranger
+ *  역할: 30레벨 달성 시 해금 가능한 탱크
+ *  특징: 단발, 강력한 데미지, 표준 체력
+ *  특이사항: 이름은 레인져인데, 실제 사거리 관련 버프는 없음
+ */
+
 class Tank6Ranger(
     x: Float,
     y: Float,
