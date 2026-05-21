@@ -1,0 +1,267 @@
+package com.oop.game.world
+
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.oop.game.GameWorld
+import com.oop.game.InputHandler
+import com.oop.game.example.enempyList.*
+import com.oop.game.example.Bullet1Normal
+import com.oop.game.tank.*
+import kotlin.math.floor
+import com.badlogic.gdx.math.MathUtils
+
+
+class ExampleWorld(
+    screenWidth: Float,
+    screenHeight: Float,
+    worldWidth: Float,
+    worldHeight: Float
+) : GameWorld(screenWidth, screenHeight, worldWidth, worldHeight) {
+
+    private enum class GameState {
+        IN_PLAY,
+        GAME_OVER
+    }
+
+    private val player = Tank3Triple(
+        x = worldWidth / 2,
+        y = worldHeight / 2,
+        worldWidth = worldWidth,
+        worldHeight = worldHeight
+    )
+
+    private val spawnInterval = 3f
+    private var spawnTimer = 0f
+
+    private val spawnWeights = listOf(
+        40,  // DotEnemy      40%
+        30,  // TriangleEnemy 30%
+        20,  // SquareEnemy   20%
+        10   // PentagonEnemy 10%
+    )
+
+    private var state = GameState.IN_PLAY
+
+    private val tileTexture = Texture(Gdx.files.internal("tile.png"))
+    private val tileSize = 64f
+
+    init {
+        add(player)
+        repeat(5) {
+            val spawnX = (Math.random() * worldWidth).toFloat()
+            val spawnY = (Math.random() * worldHeight).toFloat()
+            add(DotEnemy(spawnX, spawnY))
+        }
+    }
+
+    override fun update(delta: Float) {
+        when (state) {
+            GameState.IN_PLAY -> updateInPlay(delta)
+            GameState.GAME_OVER -> updateGameOver()
+        }
+    }
+
+    private fun updateInPlay(delta: Float) {
+        // 카메라 이동 (WASD)
+        val cameraSpeed = 200f * delta
+        if (InputHandler.isKeyPressed(InputHandler.W)) offsetY += cameraSpeed
+        if (InputHandler.isKeyPressed(InputHandler.S)) offsetY -= cameraSpeed
+        if (InputHandler.isKeyPressed(InputHandler.A)) offsetX -= cameraSpeed
+        if (InputHandler.isKeyPressed(InputHandler.D)) offsetX += cameraSpeed
+
+        offsetX = offsetX.coerceIn(0f, worldWidth - screenWidth)
+        offsetY = offsetY.coerceIn(0f, worldHeight - screenHeight)
+
+        // 1) 게임 객체 갱신
+        updateAllObjects(delta)
+
+        // 2) 충돌 체크 — 모든 적과 플레이어 충돌 확인
+        for (obj in getObjects()) {
+            if (obj is SuperEnemy && player.collidesWith(obj)) {
+                if (obj is DotEnemy) {
+                    // DotEnemy는 접촉 시 즉시 사망
+                    obj.takeDamage(obj.enemyHp)   // 자기 HP만큼 데미지 → HP가 0이 됨
+                } else {
+                    // 다른 적들은 기존대로 게임오버
+                    state = GameState.GAME_OVER
+                    break
+                }
+            }
+        }
+
+        // 3) 죽은 객체 정리
+        removeDead()
+
+        // 4) 타이머로 랜덤 스폰
+        spawnTimer += delta
+        if (spawnTimer >= spawnInterval) {
+            spawnTimer = 0f
+            spawnRandomEnemy()
+        }
+
+        // 5) 플레이어 좌표 전달 (적 추적)
+        for (obj in getObjects()) {
+            if (obj is SuperEnemy) {
+                obj.chasePlayer(player.x, player.y, delta)
+            }
+        }
+
+        //적들이 추적한 뒤 겹치면 밀어내기
+        resolveEnemyCollisions()
+
+        // 6) 발사 로직
+        if (Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) {
+            val bulletX = player.x
+            val bulletY = player.y
+
+            val mouseX = Gdx.input.x.toFloat() + offsetX
+            val mouseY = (screenHeight - Gdx.input.y.toFloat()) + offsetY
+
+            val dx = mouseX - bulletX
+            val dy = mouseY - bulletY
+            val len = Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
+            val dirX = dx / len
+            val dirY = dy / len
+
+            add(Bullet1Normal(bulletX, bulletY, dirX, dirY))
+        }
+    }
+
+    // updateInPlay() 밖으로 꺼낸 함수
+    private fun spawnRandomEnemy() {
+        val spawnX = (Math.random() * worldWidth).toFloat()
+        val spawnY = (Math.random() * worldHeight).toFloat()
+
+        val rand = (Math.random() * 100).toInt()
+        val enemy = when {
+            rand < spawnWeights[0]                                          -> DotEnemy(spawnX, spawnY)
+            rand < spawnWeights[0] + spawnWeights[1]                       -> TriangleEnemy(spawnX, spawnY)
+            rand < spawnWeights[0] + spawnWeights[1] + spawnWeights[2]     -> SquardEnemy(spawnX, spawnY)
+            else                                                            -> PentagonEnemy(spawnX, spawnY)
+        }
+        add(enemy)
+    }
+
+    private fun updateGameOver() {
+        if (InputHandler.isKeyJustPressed(InputHandler.ESCAPE)) {
+            Gdx.app.exit()
+        }
+    }
+
+    // ── 적들끼리 겹치지 않게 밀어내기 ──
+    private fun resolveEnemyCollisions() {
+        // 살아있는 적들만 모음
+        val enemies = mutableListOf<SuperEnemy>()
+        for (obj in getObjects()) {
+            // DotEnemy는 충돌 판정에서 제외
+            if (obj is SuperEnemy && obj !is DotEnemy) {
+                enemies.add(obj)
+            }
+        }
+
+        // 모든 적의 쌍을 검사 (i+1부터 시작 → 같은 쌍 두 번 검사 안 함)
+        for (i in enemies.indices) {
+            for (j in i + 1 until enemies.size) {
+                val a = enemies[i]
+                val b = enemies[j]
+
+                if (a.collidesWith(b)) {
+                    pushApart(a, b)
+                }
+            }
+        }
+    }
+
+    // 두 적을 서로 반대 방향으로 밀어냄
+    private fun pushApart(a: SuperEnemy, b: SuperEnemy) {
+        val pushAmount = 2f   // 한 프레임에 밀어내는 거리
+
+        val dx = b.x - a.x
+        val dy = b.y - a.y
+
+        // x축 방향 분리
+        if (dx > 0) {
+            b.x += pushAmount
+            a.x -= pushAmount
+        } else {
+            b.x -= pushAmount
+            a.x += pushAmount
+        }
+
+        // y축 방향 분리
+        if (dy > 0) {
+            b.y += pushAmount
+            a.y -= pushAmount
+        } else {
+            b.y -= pushAmount
+            a.y += pushAmount
+        }
+    }
+
+    override fun drawBackground(batch: SpriteBatch) {
+        val startCol = floor(offsetX / tileSize).toInt() - 1
+        val startRow = floor(offsetY / tileSize).toInt() - 1
+        val cols = (screenWidth / tileSize).toInt() + 3
+        val rows = (screenHeight / tileSize).toInt() + 3
+
+        for (row in startRow until startRow + rows) {
+            for (col in startCol until startCol + cols) {
+                val drawX = col * tileSize - offsetX
+                val drawY = row * tileSize - offsetY
+                batch.draw(tileTexture, drawX, drawY, tileSize, tileSize)
+            }
+        }
+
+        batch.color = Color.WHITE
+    }
+
+    override fun render(delta: Float) {
+        super.render(delta)
+        drawHud()
+        when (state) {
+            GameState.IN_PLAY -> {}
+            GameState.GAME_OVER -> drawGameOverOverlay()
+        }
+    }
+
+    private fun drawHud() {
+        drawTextOnScreen(
+            text = "HP: 3",
+            x = 10f,
+            y = screenHeight - 10f,
+            color = Color.YELLOW,
+            scale = 1.2f
+        )
+        drawTextInWorld(
+            text = "WORLD CENTER",
+            worldX = worldWidth / 2 - 70f,
+            worldY = worldHeight / 2,
+            color = Color.CYAN,
+            scale = 1.5f
+        )
+    }
+
+    private fun drawGameOverOverlay() {
+        drawTextOnScreen(
+            text = "Game Over!",
+            x = screenWidth / 2 - 80f,
+            y = screenHeight / 2,
+            color = Color.WHITE,
+            scale = 2f
+        )
+        drawTextOnScreen(
+            text = "Press ESC to exit",
+            x = screenWidth / 2 - 70f,
+            y = screenHeight / 2 - 40f,
+            color = Color.WHITE,
+            scale = 1f
+        )
+    }
+
+    override fun dispose() {
+        super.dispose()
+        tileTexture.dispose()
+    }
+}
