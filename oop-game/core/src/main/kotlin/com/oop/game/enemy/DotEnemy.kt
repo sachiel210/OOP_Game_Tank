@@ -58,7 +58,7 @@ class DotEnemy(
     override fun isAlive(): Boolean = enemyHp > 0
 
     override fun draw(batch: SpriteBatch) {
-        batch.draw(texture, x, y, width, height)
+        batch.draw(texture, x, y, width/2, height/2)
     }
 
     override fun dispose() {

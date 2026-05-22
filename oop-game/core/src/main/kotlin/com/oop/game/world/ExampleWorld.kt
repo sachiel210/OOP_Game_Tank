@@ -7,10 +7,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.GameWorld
 import com.oop.game.InputHandler
 import com.oop.game.example.enempyList.*
-import com.oop.game.example.Bullet1Normal
+import com.oop.game.bullet.*
 import com.oop.game.infomation.*
 import com.oop.game.tank.*
 import kotlin.math.floor
+import com.badlogic.gdx.math.MathUtils
 
 
 class ExampleWorld(
@@ -25,9 +26,7 @@ class ExampleWorld(
         GAME_OVER
     }
 
-    // player 변수
-    // 장기적으로 리스트 또는 배열로 관리되도록 수정 필요함
-    private val player = Tank3Triple(
+    private val player = Tank5Sniper(
         x = worldWidth / 2,
         y = worldHeight / 2,
         worldWidth = worldWidth,
@@ -57,6 +56,7 @@ class ExampleWorld(
 
     private val spawnInterval = 3f
     private var spawnTimer = 0f
+
     private val spawnWeights = listOf(
         40,  // DotEnemy      40%
         30,  // TriangleEnemy 30%
@@ -70,14 +70,12 @@ class ExampleWorld(
     private val tileSize = 64f
 
     init {
+        add(player)
         repeat(5) {
             val spawnX = (Math.random() * worldWidth).toFloat()
             val spawnY = (Math.random() * worldHeight).toFloat()
             add(DotEnemy(spawnX, spawnY))
         }
-        add(player)
-        add(healthBar)
-        add(expBar)
     }
 
     override fun update(delta: Float) {
@@ -162,26 +160,31 @@ class ExampleWorld(
             val mouseX = Gdx.input.x.toFloat() + offsetX
             val mouseY = (screenHeight - Gdx.input.y.toFloat()) + offsetY
 
-            val dx = mouseX - bulletX
-            val dy = mouseY - bulletY
-            val len = Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
-            val dirX = dx / len
-            val dirY = dy / len
+            val toMouseVectorX = mouseX - bulletX
+            val toMouseVectorY = mouseY - bulletY
+            val toMouseDist = Math.sqrt((toMouseVectorX * toMouseVectorX + toMouseVectorY * toMouseVectorY).toDouble()).toFloat()
+            val aimVectorX = toMouseVectorX / toMouseDist
+            val aimVectorY = toMouseVectorY / toMouseDist
 
-            add(Bullet1Normal(bulletX, bulletY, dirX, dirY))
+            val temp = Bullet5Sniper(bulletX - 8f, bulletY - 4f, aimVectorX, aimVectorY)
+            val bullets = temp.fire()
+            for (i in 0 until bullets.size) {
+                add(bullets[i])
+            }
         }
     }
 
+    // updateInPlay() 밖으로 꺼낸 함수
     private fun spawnRandomEnemy() {
         val spawnX = (Math.random() * worldWidth).toFloat()
         val spawnY = (Math.random() * worldHeight).toFloat()
 
         val rand = (Math.random() * 100).toInt()
         val enemy = when {
-            rand < spawnWeights[0]                                         -> DotEnemy(spawnX, spawnY)
+            rand < spawnWeights[0]                                          -> DotEnemy(spawnX, spawnY)
             rand < spawnWeights[0] + spawnWeights[1]                       -> TriangleEnemy(spawnX, spawnY)
             rand < spawnWeights[0] + spawnWeights[1] + spawnWeights[2]     -> SquardEnemy(spawnX, spawnY)
-            else                                                           -> PentagonEnemy(spawnX, spawnY)
+            else                                                            -> PentagonEnemy(spawnX, spawnY)
         }
         add(enemy)
     }
@@ -219,6 +222,13 @@ class ExampleWorld(
     }
 
     private fun drawHud() {
+        drawTextOnScreen(
+            text = "HP: 3",
+            x = 10f,
+            y = screenHeight - 10f,
+            color = Color.YELLOW,
+            scale = 1.2f
+        )
         drawTextInWorld(
             text = "WORLD CENTER",
             worldX = worldWidth / 2 - 70f,

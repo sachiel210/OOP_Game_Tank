@@ -4,12 +4,12 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
-class Bullet1Normal(
+class Bullet6Ranger(
     x: Float,
     y: Float,
     aimX: Float,
     aimY: Float
-) : SuperBullet(x, y, 25f, 25f, aimX, aimY, speed = 300f) {
+) : SuperBullet(x, y, 20f, 20f, aimX, aimY, speed = 500f) {
 
     private val texture = Texture(Gdx.files.internal("bullet_image/bullet_nomal.png"))
 
@@ -23,7 +23,7 @@ class Bullet1Normal(
 
     fun fire(): ArrayList<SuperBullet> {
         val bullets = ArrayList<SuperBullet>()
-        bullets.add(Bullet1Normal(x, y, aimX, aimY))
+        bullets.add(Bullet6Ranger(x, y, aimX, aimY))
         return bullets
     }
 }
