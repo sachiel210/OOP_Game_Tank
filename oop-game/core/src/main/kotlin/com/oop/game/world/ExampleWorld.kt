@@ -70,12 +70,15 @@ class ExampleWorld(
     private val tileSize = 64f
 
     init {
-        add(player)
+
         repeat(5) {
             val spawnX = (Math.random() * worldWidth).toFloat()
             val spawnY = (Math.random() * worldHeight).toFloat()
             add(DotEnemy(spawnX, spawnY))
         }
+        add(player)
+        add(healthBar)
+        add(expBar)
     }
 
     override fun update(delta: Float) {
@@ -152,6 +155,9 @@ class ExampleWorld(
             }
         }
 
+        // 적들이 추적한 뒤 겹치면 밀어내기
+        resolveEnemyCollisions()
+
         // 6) 발사 로직
         if (Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) {
             val bulletX = player.x
@@ -187,6 +193,56 @@ class ExampleWorld(
             else                                                            -> PentagonEnemy(spawnX, spawnY)
         }
         add(enemy)
+    }
+
+    // ── 적들끼리 겹치지 않게 밀어내기 ──
+    private fun resolveEnemyCollisions() {
+        // 살아있는 적들만 모음
+        val enemies = mutableListOf<SuperEnemy>()
+        for (obj in getObjects()) {
+            // DotEnemy는 충돌 판정에서 제외
+            if (obj is SuperEnemy && obj !is DotEnemy) {
+                enemies.add(obj)
+            }
+        }
+
+        // 모든 적의 쌍을 검사 (i+1부터 시작 → 같은 쌍 두 번 검사 안 함)
+        for (i in enemies.indices) {
+            for (j in i + 1 until enemies.size) {
+                val a = enemies[i]
+                val b = enemies[j]
+
+                if (a.collidesWith(b)) {
+                    pushApart(a, b)
+                }
+            }
+        }
+    }
+
+    // 두 적을 서로 반대 방향으로 밀어냄
+    private fun pushApart(a: SuperEnemy, b: SuperEnemy) {
+        val pushAmount = 2f   // 한 프레임에 밀어내는 거리
+
+        val dx = b.x - a.x
+        val dy = b.y - a.y
+
+        // x축 방향 분리
+        if (dx > 0) {
+            b.x += pushAmount
+            a.x -= pushAmount
+        } else {
+            b.x -= pushAmount
+            a.x += pushAmount
+        }
+
+        // y축 방향 분리
+        if (dy > 0) {
+            b.y += pushAmount
+            a.y -= pushAmount
+        } else {
+            b.y -= pushAmount
+            a.y += pushAmount
+        }
     }
 
     private fun updateGameOver() {
