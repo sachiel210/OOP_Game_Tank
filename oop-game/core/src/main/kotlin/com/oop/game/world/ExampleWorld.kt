@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.oop.game.GameWorld
 import com.oop.game.InputHandler
 import com.oop.game.example.enempyList.*
-import com.oop.game.example.Bullet1Normal
+import com.oop.game.bullet.*
 import com.oop.game.tank.*
 import kotlin.math.floor
 import com.badlogic.gdx.math.MathUtils
@@ -25,7 +25,7 @@ class ExampleWorld(
         GAME_OVER
     }
 
-    private val player = Tank3Triple(
+    private val player = Tank5Sniper(
         x = worldWidth / 2,
         y = worldHeight / 2,
         worldWidth = worldWidth,
@@ -110,13 +110,17 @@ class ExampleWorld(
             val mouseX = Gdx.input.x.toFloat() + offsetX
             val mouseY = (screenHeight - Gdx.input.y.toFloat()) + offsetY
 
-            val dx = mouseX - bulletX
-            val dy = mouseY - bulletY
-            val len = Math.sqrt((dx * dx + dy * dy).toDouble()).toFloat()
-            val dirX = dx / len
-            val dirY = dy / len
+            val toMouseVectorX = mouseX - bulletX
+            val toMouseVectorY = mouseY - bulletY
+            val toMouseDist = Math.sqrt((toMouseVectorX * toMouseVectorX + toMouseVectorY * toMouseVectorY).toDouble()).toFloat()
+            val aimVectorX = toMouseVectorX / toMouseDist
+            val aimVectorY = toMouseVectorY / toMouseDist
 
-            add(Bullet1Normal(bulletX, bulletY, dirX, dirY))
+            val temp = Bullet5Sniper(bulletX - 8f, bulletY - 4f, aimVectorX, aimVectorY)
+            val bullets = temp.fire()
+            for (i in 0 until bullets.size) {
+                add(bullets[i])
+            }
         }
     }
 

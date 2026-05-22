@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
-class Bullet1Normal(
+class Bullet4Quad(
     x: Float,
     y: Float,
     aimX: Float,
@@ -22,8 +22,19 @@ class Bullet1Normal(
     }
 
     fun fire(): ArrayList<SuperBullet> {
+        val verticalVectorX = -aimY
+        val verticalVectorY =  aimX
+
+        val frontBullet = Bullet4Quad(x, y,  aimX,           aimY)           // 앞 (마우스 방향)
+        val leftBullet  = Bullet4Quad(x, y,  verticalVectorX,  verticalVectorY) // 좌 (90도)
+        val rightBullet = Bullet4Quad(x, y, -verticalVectorX, -verticalVectorY) // 우 (270도)
+        val backBullet  = Bullet4Quad(x, y, -aimX,           -aimY)          // 뒤 (180도)
+
         val bullets = ArrayList<SuperBullet>()
-        bullets.add(Bullet1Normal(x, y, aimX, aimY))
+        bullets.add(frontBullet)
+        bullets.add(leftBullet)
+        bullets.add(rightBullet)
+        bullets.add(backBullet)
         return bullets
     }
 }
