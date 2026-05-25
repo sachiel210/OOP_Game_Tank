@@ -23,10 +23,11 @@ class ExampleWorld(
 
     private enum class GameState {
         IN_PLAY,
+        TANK_LEVEL_UP,
         GAME_OVER
     }
 
-    private val player = Tank5Sniper(
+    private var player: SuperTank = Tank1Nomal(
         x = worldWidth / 2,
         y = worldHeight / 2,
         worldWidth = worldWidth,
@@ -69,6 +70,17 @@ class ExampleWorld(
     private val tileTexture = Texture(Gdx.files.internal("tile.png"))
     private val tileSize = 64f
 
+    // 탱크 선택 버튼 이미지
+    private val tankSelectTextures = listOf(
+        Texture(Gdx.files.internal("tank_image/tank2_Twin/Twin_selection.png")),           // 0 → Twin
+        Texture(Gdx.files.internal("tank_image/tank3_Triple/Triple_selection.png")),       // 1 → Triple
+        Texture(Gdx.files.internal("tank_image/tank4_Quad/Quad_selection.png")),           // 2 → Quad
+        Texture(Gdx.files.internal("tank_image/tank5_Sniper/Sniper_selection.png")),       // 3 → Sniper
+        Texture(Gdx.files.internal("tank_image/tank6_Ranger/Ranger_selection.png")),       // 4 → Ranger
+        Texture(Gdx.files.internal("tank_image/tank7_Destroyer/Destroyer_selection.png"))  // 5 → Destroyer
+    )
+    private var currentOptions: List<Int> = emptyList() // 다음 레벨에서 선택 가능한 탱크를 확인
+
     init {
 
         repeat(5) {
@@ -84,6 +96,7 @@ class ExampleWorld(
     override fun update(delta: Float) {
         when (state) {
             GameState.IN_PLAY -> updateInPlay(delta)
+            GameState.TANK_LEVEL_UP -> updateTankLevelUp(delta)
             GameState.GAME_OVER -> updateGameOver()
         }
     }
@@ -117,14 +130,15 @@ class ExampleWorld(
 
         // 레벨링 시스템
         // 문제: 레벨 2개 이상을 한 프레임에 올려야 하는 상황이 되면?
-        // 정답: 경험치 바가 작렬하게 터져버린다. 계산에 2프레임 이상 필요함
+        // 정답: 경험치 바가 작렬하게 터져버린다. 펑~. 계산에 2프레임 이상 필요함
         // for 문 이용하면 해결 가능할지도. 그건 그냥 후반에 AI로 짤 때 시켜보자
         if (Gdx.input.isKeyJustPressed(InputHandler.R)){
             if (expBar.expPoint + 900f > expBar.currentMaxExp) { // 레벨업을 할 만큼 충분한 경험치가 모였는지 검사
                 expBar.expPoint -= expBar.currentMaxExp // 현재 레벨에서 획득한 경험치는 전부 제거함 (시각효과 위해)
                 expBar.expPoint += 900f // 획득한 경험치만큼 현재 경험치에 추가함
-                expBar.currentMaxExp = expBar.currentMaxExp * 1.2f // 새로운 레벨은 레벨업 위해 필요 경험치가 1.2배 증가함
+                expBar.currentMaxExp = expBar.currentMaxExp * 1.1f // 새로운 레벨은 레벨업 위해 필요 경험치가 1.1배 증가함
                 expBar.currentLevel += 1 // 레벨 1 증가
+                checkLevelUpgrade() // 업그레이드 해야 하는지 확인
             } else {
                 expBar.expPoint += 900f // 레벨업에 충분한 경험치가 모이지 않았을 때는 그냥 더함
             }
@@ -245,6 +259,94 @@ class ExampleWorld(
         }
     }
 
+    // 탱크 레벨업시 관련 함수들
+    private fun checkLevelUpgrade() {
+        currentOptions = when (expBar.currentLevel) {
+            15 -> listOf(0, 3)  // 15레벨 달성! Twin이냐 Sniper 이지선다
+            30 -> when (player) {
+                is Tank2Twin   -> listOf(1, 2)  // Twin 골랐으면 Triple, Quad 이지선다
+                is Tank5Sniper -> listOf(4, 5)  // Sniper 골랐으면 Ranger, Destroyer 이지선다
+                else -> emptyList()             // 예외처리
+            }
+            else -> emptyList() // 특정 레벨이 아니면 그냥 레벨업
+        }
+        if (currentOptions.isNotEmpty()) state = GameState.TANK_LEVEL_UP
+    }
+
+    private fun createTank(index: Int): SuperTank {
+        val x = player.x
+        val y = player.y
+        return when (index) {
+            0 -> Tank2Twin(x, y, worldWidth, worldHeight)      // 쌍발. 화력은 낮지만 연사가 매력
+            1 -> Tank3Triple(x, y, worldWidth, worldHeight)    // 삼발. 많을수록 좋은 법
+            2 -> Tank4Quad(x, y, worldWidth, worldHeight)      // 사발. 동서남북 커버
+            3 -> Tank5Sniper(x, y, worldWidth, worldHeight)    // 저격수. 한 방에 끝내준다
+            4 -> Tank6Ranger(x, y, worldWidth, worldHeight)    // 레인저. 총알 속도가 빠름
+            5 -> Tank7Destroyer(x, y, worldWidth, worldHeight) // 디스트로이어. 강력한 총알 데미지
+            else -> Tank1Nomal(x, y, worldWidth, worldHeight)  // 예외처리
+        }
+    }
+
+    private fun updateTankLevelUp(delta: Float) {
+
+        if (!Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) return // 클릭 안 했으면 그냥 넘어가
+
+        val mouseX = Gdx.input.x.toFloat()
+        val mouseY = screenHeight - Gdx.input.y.toFloat() // Y축 반전. LibGDX는 아래가 0이거든요
+
+        val tex0 = tankSelectTextures[currentOptions[0]]
+        val totalW = currentOptions.size * (tex0.width / 5f + 20f) - 20f // 버튼들 총 너비 계산
+        val startX = screenWidth / 2 - totalW / 2 // 화면 중앙 기준으로 정렬
+
+        for (i in currentOptions.indices) {
+            val index = currentOptions[i]
+            val tex = tankSelectTextures[index]
+            val bw = tex.width / 5f  // 원본의 1/5 크기
+            val bh = tex.height / 5f // 원본의 1/5 크기
+            val bx = startX + i * (bw + 20f)
+            val by = screenHeight / 2 - bh / 2f // 화면 세로 중앙
+
+            if (mouseX in bx..(bx + bw) && mouseY in by..(by + bh)) { // 버튼 영역 안에 클릭했는가?
+                val newTank = createTank(index)
+                remove(player)  // 기존 탱크 퇴장
+                player = newTank
+                add(player)     // 새 탱크 입장
+                healthBar.tankSpeed = player.tankSpeed
+                healthBar.tankHealthPoint = player.tankHealthPoint
+                healthBar.tankMaxHealthPoint = player.tankMaxHealthPoint
+                state = GameState.IN_PLAY // 선택 완료! 다시 전장으로
+            }
+        }
+    }
+
+    private fun drawTankSelectOverlay() {
+        drawTextOnScreen(
+            text = "choose tank!",
+            x = screenWidth / 2 - 100f,
+            y = screenHeight / 2 + 120f,
+            color = Color.YELLOW,
+            scale = 2f
+        )
+
+        val tex0 = tankSelectTextures[currentOptions[0]]
+        val totalW = currentOptions.size * (tex0.width / 5f + 20f) - 20f
+        val startX = screenWidth / 2 - totalW / 2
+
+        for (i in currentOptions.indices) {
+            val index = currentOptions[i]
+            val tex = tankSelectTextures[index]
+            val bw = tex.width / 5f
+            val bh = tex.height / 5f
+            val bx = startX + i * (bw + 20f)
+            val by = screenHeight / 2 - bh / 2f
+
+            batch.begin()
+            batch.draw(tex, bx, by, bw, bh) // 탱크 선택 버튼 그리기
+            batch.end()
+        }
+    }
+// 탱크 레벨업시 관련 함수들 여기까지
+
     private fun updateGameOver() {
         if (InputHandler.isKeyJustPressed(InputHandler.ESCAPE)) {
             Gdx.app.exit()
@@ -273,6 +375,7 @@ class ExampleWorld(
         drawHud()
         when (state) {
             GameState.IN_PLAY -> {}
+            GameState.TANK_LEVEL_UP -> drawTankSelectOverlay()
             GameState.GAME_OVER -> drawGameOverOverlay()
         }
     }
@@ -322,5 +425,8 @@ class ExampleWorld(
     override fun dispose() {
         super.dispose()
         tileTexture.dispose()
+        for (tex in tankSelectTextures) {
+            tex.dispose()
+        }
     }
 }

@@ -11,9 +11,9 @@ class TankHealthBar( // GameObject의 자식 클래스
     y: Float,
     private val worldWidth: Float,
     private val worldHeight: Float,
-    private val tankSpeed: Float,
+    var tankSpeed: Float,
     var tankHealthPoint: Float,
-    private val tankMaxHealthPoint: Float
+    var tankMaxHealthPoint: Float
 ) : GameObject(x, y, 10f, 10f) {
 
     private var tankCurrentHealth = tankHealthPoint / tankMaxHealthPoint
