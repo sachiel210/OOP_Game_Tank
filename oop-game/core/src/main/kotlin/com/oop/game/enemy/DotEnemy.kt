@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 class DotEnemy(
     x: Float,
     y: Float
-) : SuperEnemy(x, y, 40f, 40f) {
+) : SuperEnemy(x, y, 50f, 50f) {
 
     // 이미지 로딩
     private val texture = Texture(Gdx.files.internal("enemy_image/enemy_dot.png"))
