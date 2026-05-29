@@ -113,9 +113,6 @@ class ExampleWorld(
         expBar.x = offsetX + screenWidth / 2 // 화면 중앙에 위치
         expBar.y = offsetY + screenHeight / 2 - 320f // 320만큼 빼서 화면 하단에 배치되도록 유도
 
-        // 1) 게임 객체 갱신
-        updateAllObjects(delta)
-
         // 테스트를 위한 체력 자해 시스템
         if (Gdx.input.isKeyJustPressed(InputHandler.E)){ // E를 누르는 것이 트리거로 발동됨
             player.tankHealthPoint = player.tankHealthPoint - 20f // 20만큼 체력을 제거함
