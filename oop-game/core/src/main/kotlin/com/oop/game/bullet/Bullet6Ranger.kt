@@ -9,7 +9,7 @@ class Bullet6Ranger(
     y: Float,
     aimX: Float,
     aimY: Float
-) : SuperBullet(x, y, 20f, 20f, aimX, aimY, speed = 500f) {
+) : SuperBullet(x, y, 20f, 20f, aimX, aimY, speed = 500f, damage = 60f) {
 
     private val texture = Texture(Gdx.files.internal("bullet_image/bullet_nomal.png"))
 
