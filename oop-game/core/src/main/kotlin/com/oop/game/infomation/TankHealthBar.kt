@@ -42,10 +42,10 @@ class TankHealthBar( // GameObject의 자식 클래스
 
 
     override fun update(delta: Float) {
-        if (InputHandler.isKeyPressed(InputHandler.LEFT))  x -= tankSpeed * delta
-        if (InputHandler.isKeyPressed(InputHandler.RIGHT)) x += tankSpeed * delta
-        if (InputHandler.isKeyPressed(InputHandler.UP))    y += tankSpeed * delta
-        if (InputHandler.isKeyPressed(InputHandler.DOWN))  y -= tankSpeed * delta
+        if (InputHandler.isKeyPressed(InputHandler.A))  x -= tankSpeed * delta
+        if (InputHandler.isKeyPressed(InputHandler.D)) x += tankSpeed * delta
+        if (InputHandler.isKeyPressed(InputHandler.W))    y += tankSpeed * delta
+        if (InputHandler.isKeyPressed(InputHandler.S))  y -= tankSpeed * delta
 
         // 월드 경계 안쪽으로 가두기.
         x = x.coerceIn(0f, worldWidth - width)

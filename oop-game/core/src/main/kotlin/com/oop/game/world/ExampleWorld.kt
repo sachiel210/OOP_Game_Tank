@@ -102,15 +102,11 @@ class ExampleWorld(
     }
 
     private fun updateInPlay(delta: Float) {
-        // 카메라 이동 (WASD)
-        val cameraSpeed = 200f * delta
-        if (InputHandler.isKeyPressed(InputHandler.W)) offsetY += cameraSpeed
-        if (InputHandler.isKeyPressed(InputHandler.S)) offsetY -= cameraSpeed
-        if (InputHandler.isKeyPressed(InputHandler.A)) offsetX -= cameraSpeed
-        if (InputHandler.isKeyPressed(InputHandler.D)) offsetX += cameraSpeed
-
-        offsetX = offsetX.coerceIn(0f, worldWidth - screenWidth)
-        offsetY = offsetY.coerceIn(0f, worldHeight - screenHeight)
+        // 카메라 이동 탱크추적
+        offsetX = (player.x - screenWidth / 2f).coerceIn(0f, worldWidth - screenWidth)
+        offsetY = (player.y - screenHeight / 2f).coerceIn(0f, worldHeight - screenHeight)
+        // 카메라 위치가 coerceIn 범위 내부로 제한이 됨
+        // 감사합니다 구글
 
         // 경험치 바 위치 갱신
         expBar.x = offsetX + screenWidth / 2 // 화면 중앙에 위치
@@ -132,15 +128,19 @@ class ExampleWorld(
         // 문제: 레벨 2개 이상을 한 프레임에 올려야 하는 상황이 되면?
         // 정답: 경험치 바가 작렬하게 터져버린다. 펑~. 계산에 2프레임 이상 필요함
         // for 문 이용하면 해결 가능할지도. 그건 그냥 후반에 AI로 짤 때 시켜보자
+        // 업데이트: while문으로 살렸다 만세!
         if (Gdx.input.isKeyJustPressed(InputHandler.R)){
-            if (expBar.expPoint + 900f > expBar.currentMaxExp) { // 레벨업을 할 만큼 충분한 경험치가 모였는지 검사
-                expBar.expPoint -= expBar.currentMaxExp // 현재 레벨에서 획득한 경험치는 전부 제거함 (시각효과 위해)
-                expBar.expPoint += 900f // 획득한 경험치만큼 현재 경험치에 추가함
-                expBar.currentMaxExp = expBar.currentMaxExp * 1.1f // 새로운 레벨은 레벨업 위해 필요 경험치가 1.1배 증가함
-                expBar.currentLevel += 1 // 레벨 1 증가
-                checkLevelUpgrade() // 업그레이드 해야 하는지 확인
+            if (expBar.expPoint + 6000f > expBar.currentMaxExp) { // 레벨업을 할 만큼 충분한 경험치가 모였는지 검사
+                expBar.expPoint += 6000f  // 일단 경험치 더하고
+
+                while (expBar.expPoint >= expBar.currentMaxExp) {  // 레벨업 조건 충족하는 동안 반복
+                    expBar.expPoint -= expBar.currentMaxExp // 초과한 경험치는 남김
+                    expBar.currentMaxExp = expBar.currentMaxExp * 1.1f
+                    expBar.currentLevel += 1
+                    checkLevelUpgrade()
+                }
             } else {
-                expBar.expPoint += 900f // 레벨업에 충분한 경험치가 모이지 않았을 때는 그냥 더함
+                expBar.expPoint += 6000f // 레벨업에 충분한 경험치가 모이지 않았을 때는 그냥 더함
             }
         }
 
@@ -261,38 +261,44 @@ class ExampleWorld(
 
     // 탱크 레벨업시 관련 함수들
     private fun checkLevelUpgrade() {
-        currentOptions = when (expBar.currentLevel) {
-            15 -> listOf(0, 3)  // 15레벨 달성! Twin이냐 Sniper 이지선다
-            30 -> when (player) {
+        val options: List<Int>? = when{
+            // 15레벨 달성시 Twin Sniper 이지선다
+            // 15레벨을 넘겨도 탱크 업그레이드에 문제가 없게 설계됨
+            (expBar.currentLevel >= 15 && player is Tank1Nomal) -> listOf(0, 3)
+            expBar.currentLevel >= 30 -> when (player) {
                 is Tank2Twin   -> listOf(1, 2)  // Twin 골랐으면 Triple, Quad 이지선다
                 is Tank5Sniper -> listOf(4, 5)  // Sniper 골랐으면 Ranger, Destroyer 이지선다
-                else -> emptyList()             // 예외처리
+                else -> null             // 예외처리
             }
-            else -> emptyList() // 특정 레벨이 아니면 그냥 레벨업
+            else -> null // 특정 레벨이 아니면 그냥 레벨업
         }
-        if (currentOptions.isNotEmpty()) state = GameState.TANK_LEVEL_UP
+        if (options != null) {
+            currentOptions = options  // 멤버 변수에 할당
+            state = GameState.TANK_LEVEL_UP
+        }
     }
 
+    // 선택한 탱크 반환
     private fun createTank(index: Int): SuperTank {
         val x = player.x
         val y = player.y
         return when (index) {
-            0 -> Tank2Twin(x, y, worldWidth, worldHeight)      // 쌍발. 화력은 낮지만 연사가 매력
-            1 -> Tank3Triple(x, y, worldWidth, worldHeight)    // 삼발. 많을수록 좋은 법
-            2 -> Tank4Quad(x, y, worldWidth, worldHeight)      // 사발. 동서남북 커버
-            3 -> Tank5Sniper(x, y, worldWidth, worldHeight)    // 저격수. 한 방에 끝내준다
-            4 -> Tank6Ranger(x, y, worldWidth, worldHeight)    // 레인저. 총알 속도가 빠름
-            5 -> Tank7Destroyer(x, y, worldWidth, worldHeight) // 디스트로이어. 강력한 총알 데미지
-            else -> Tank1Nomal(x, y, worldWidth, worldHeight)  // 예외처리
+            0 -> Tank2Twin(x, y, worldWidth, worldHeight)
+            1 -> Tank3Triple(x, y, worldWidth, worldHeight)
+            2 -> Tank4Quad(x, y, worldWidth, worldHeight)
+            3 -> Tank5Sniper(x, y, worldWidth, worldHeight)
+            4 -> Tank6Ranger(x, y, worldWidth, worldHeight)
+            5 -> Tank7Destroyer(x, y, worldWidth, worldHeight)
+            else -> Tank1Nomal(x, y, worldWidth, worldHeight)
         }
     }
 
     private fun updateTankLevelUp(delta: Float) {
-
-        if (!Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) return // 클릭 안 했으면 그냥 넘어가
+        updateInPlay(delta)
+        if (!Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) return // 클릭 안 했으면 그냥 넘어감
 
         val mouseX = Gdx.input.x.toFloat()
-        val mouseY = screenHeight - Gdx.input.y.toFloat() // Y축 반전. LibGDX는 아래가 0이거든요
+        val mouseY = screenHeight - Gdx.input.y.toFloat() // Y축 반전
 
         val tex0 = tankSelectTextures[currentOptions[0]]
         val totalW = currentOptions.size * (tex0.width / 5f + 20f) - 20f // 버튼들 총 너비 계산
@@ -308,13 +314,13 @@ class ExampleWorld(
 
             if (mouseX in bx..(bx + bw) && mouseY in by..(by + bh)) { // 버튼 영역 안에 클릭했는가?
                 val newTank = createTank(index)
-                remove(player)  // 기존 탱크 퇴장
+                remove(player)  // 기존 탱크 삭제
                 player = newTank
                 add(player)     // 새 탱크 입장
                 healthBar.tankSpeed = player.tankSpeed
                 healthBar.tankHealthPoint = player.tankHealthPoint
                 healthBar.tankMaxHealthPoint = player.tankMaxHealthPoint
-                state = GameState.IN_PLAY // 선택 완료! 다시 전장으로
+                state = GameState.IN_PLAY // 통상적인 게임 플레이 상태로 전환
             }
         }
     }
