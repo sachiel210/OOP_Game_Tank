@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
+const val BULLET1_RELOAD_INTERVAL = 0.5f  // 기본 단발, 2발/초
+
 class Bullet1Normal(
     x: Float,
     y: Float,
@@ -21,9 +23,12 @@ class Bullet1Normal(
         texture.dispose()
     }
 
-    fun fire(): ArrayList<SuperBullet> {
-        val bullets = ArrayList<SuperBullet>()
-        bullets.add(Bullet1Normal(x, y, aimX, aimY))
-        return bullets
+    companion object {
+        fun fire(x: Float, y: Float, aimX: Float, aimY: Float): List<SuperBullet> {
+
+            return listOf(
+                Bullet1Normal(x, y, aimX, aimY)
+            )
+        }
     }
 }

@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
+const val BULLET4_RELOAD_INTERVAL = 0.5f  // 4방향, 한 번에 4발이라 중간 텀
+
 class Bullet4Quad(
     x: Float,
     y: Float,
@@ -21,20 +23,19 @@ class Bullet4Quad(
         texture.dispose()
     }
 
-    fun fire(): ArrayList<SuperBullet> {
-        val verticalVectorX = -aimY
-        val verticalVectorY =  aimX
+    companion object {
+        private const val barrelGap = 30f
 
-        val frontBullet = Bullet4Quad(x, y,  aimX,           aimY)           // 앞 (마우스 방향)
-        val leftBullet  = Bullet4Quad(x, y,  verticalVectorX,  verticalVectorY) // 좌 (90도)
-        val rightBullet = Bullet4Quad(x, y, -verticalVectorX, -verticalVectorY) // 우 (270도)
-        val backBullet  = Bullet4Quad(x, y, -aimX,           -aimY)          // 뒤 (180도)
+        fun fire(x: Float, y: Float, aimX: Float, aimY: Float): List<SuperBullet> {
+            val verticalVectorX = -aimY
+            val verticalVectorY = aimX
 
-        val bullets = ArrayList<SuperBullet>()
-        bullets.add(frontBullet)
-        bullets.add(leftBullet)
-        bullets.add(rightBullet)
-        bullets.add(backBullet)
-        return bullets
+            return listOf(
+                Bullet4Quad(x, y,  aimX, aimY),
+                Bullet4Quad(x, y, verticalVectorX,  verticalVectorY),
+                Bullet4Quad(x, y, -verticalVectorX, -verticalVectorY),
+                Bullet4Quad(x, y, -aimX, -aimY)
+            )
+        }
     }
 }

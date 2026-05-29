@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>발사 벡터 계산 설명</title>
+<style>
+  body { background: #1a1a2e; color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+  h2 { color: #e94560; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #aaa; font-size: 13px; margin-bottom: 20px; }
+  .container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 860px; margin: 0 auto; }
+  .card { background: #16213e; border-radius: 12px; padding: 16px; }
+  .card h3 { color: #0f3460; background: #e94560; display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 14px; margin-top: 0; }
+  canvas { display: block; margin: 0 auto; border-radius: 8px; }
+  .code { background: #0a0a1a; border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; margin-top: 12px; line-height: 1.8; }
+  .c-gray   { color: #888; }
+  .c-yellow { color: #f0db4f; }
+  .c-green  { color: #6fcf97; }
+  .c-blue   { color: #56ccf2; }
+  .c-red    { color: #eb5757; }
+  .c-purple { color: #bb86fc; }
+  .arrow-label { font-size: 11px; fill: #eee; }
+</style>
+</head>
+<body>
+
+<h2>🎯 발사 벡터 계산 원리</h2>
+<p class="subtitle">ExampleWorld 발사 로직 시각화</p>
+
+<div class="container">
+
+  <!-- Step 1 -->
+  <div class="card">
+    <h3>① 마우스 좌표 → 월드 좌표 변환</h3>
+    <canvas id="c1" width="340" height="220"></canvas>
+    <div class="code">
+      <span class="c-gray">// 화면 좌표</span><br>
+      <span class="c-blue">mouseX</span> = Gdx.input.x + <span class="c-purple">offsetX</span><br>
+      <span class="c-blue">mouseY</span> = (screenH - Gdx.input.y) + <span class="c-purple">offsetY</span><br>
+      <br>
+      <span class="c-gray">// ↑ Y축 반전: LibGDX는 아래가 0</span><br>
+      <span class="c-gray">// ↑ offset: 카메라 이동량 보정</span>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="card">
+    <h3>② 탱크 → 마우스 방향 벡터</h3>
+    <canvas id="c2" width="340" height="220"></canvas>
+    <div class="code">
+      <span class="c-gray">// 탱크에서 마우스까지 벡터</span><br>
+      <span class="c-yellow">toX</span> = mouseX - <span class="c-green">bulletX</span><br>
+      <span class="c-yellow">toY</span> = mouseY - <span class="c-green">bulletY</span>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="card">
+    <h3>③ 정규화 (길이를 1로)</h3>
+    <canvas id="c3" width="340" height="220"></canvas>
+    <div class="code">
+      <span class="c-gray">// 벡터 길이 계산</span><br>
+      <span class="c-red">dist</span> = sqrt(toX² + toY²)<br>
+      <br>
+      <span class="c-gray">// 길이로 나눠서 크기를 1로</span><br>
+      <span class="c-blue">aimX</span> = toX / <span class="c-red">dist</span><br>
+      <span class="c-blue">aimY</span> = toY / <span class="c-red">dist</span>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="card">
+    <h3>④ 불릿에 방향 전달 → 이동</h3>
+    <canvas id="c4" width="340" height="220"></canvas>
+    <div class="code">
+      <span class="c-gray">// SuperBullet.update()</span><br>
+      x += <span class="c-blue">aimX</span> * <span class="c-purple">speed</span> * delta<br>
+      y += <span class="c-blue">aimY</span> * <span class="c-purple">speed</span> * delta<br>
+      <br>
+      <span class="c-gray">// aimX,Y가 1이라 speed만큼만 이동</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── 공통 유틸 ──
+function arrow(ctx, x1,y1,x2,y2,color,width=2){
+  ctx.strokeStyle=color; ctx.lineWidth=width;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  const ang=Math.atan2(y2-y1,x2-x1);
+  const len=10;
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-len*Math.cos(ang-0.4),y2-len*Math.sin(ang-0.4));
+  ctx.lineTo(x2-len*Math.cos(ang+0.4),y2-len*Math.sin(ang+0.4));
+  ctx.closePath(); ctx.fill();
+}
+function label(ctx,text,x,y,color='#eee',size=12){
+  ctx.fillStyle=color; ctx.font=`${size}px monospace`;
+  ctx.fillText(text,x,y);
+}
+function grid(ctx,w,h){
+  ctx.strokeStyle='#ffffff10'; ctx.lineWidth=1;
+  for(let x=0;x<w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+}
+
+// ── Canvas 1: 좌표 변환 ──
+(function(){
+  const cv=document.getElementById('c1');
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#0d0d1a'; ctx.fillRect(0,0,340,220);
+  grid(ctx,340,220);
+
+  // 화면 영역
+  ctx.strokeStyle='#56ccf2'; ctx.lineWidth=2; ctx.setLineDash([6,3]);
+  ctx.strokeRect(20,20,180,160);
+  label(ctx,'화면(Screen)',25,38,'#56ccf2',11);
+  ctx.setLineDash([]);
+
+  // 월드 영역 (더 큰 개념)
+  ctx.strokeStyle='#6fcf97'; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+  ctx.strokeRect(10,10,310,195);
+  label(ctx,'월드(World)',220,25,'#6fcf97',11);
+  ctx.setLineDash([]);
+
+  // offset 표시
+  arrow(ctx, 10,210, 90,210, '#bb86fc', 2);
+  label(ctx,'offsetX','30',205,'#bb86fc',11);
+  arrow(ctx, 330,195, 330,100, '#bb86fc', 2);
+  label(ctx,'offsetY',  333, 150,'#bb86fc',11);
+
+  // 마우스 커서
+  ctx.fillStyle='#e94560';
+  ctx.beginPath(); ctx.arc(160,80,6,0,Math.PI*2); ctx.fill();
+  label(ctx,'🖱 Mouse(screen)','95',72,'#e94560',11);
+
+  // 변환 화살표
+  arrow(ctx, 160,80, 220,120,'#f0db4f',2);
+  label(ctx,'+offset →','165',106,'#f0db4f',10);
+
+  // 월드 좌표
+  ctx.fillStyle='#6fcf97';
+  ctx.beginPath(); ctx.arc(225,120,6,0,Math.PI*2); ctx.fill();
+  label(ctx,'Mouse(world)','230',116,'#6fcf97',11);
+})();
+
+// ── Canvas 2: 방향 벡터 ──
+(function(){
+  const cv=document.getElementById('c2');
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#0d0d1a'; ctx.fillRect(0,0,340,220);
+  grid(ctx,340,220);
+
+  const tx=80, ty=150; // 탱크
+  const mx=260, my=60; // 마우스
+
+  // 탱크
+  ctx.fillStyle='#6fcf97';
+  ctx.fillRect(tx-14,ty-14,28,28);
+  label(ctx,'탱크(x,y)',tx-10,ty+30,'#6fcf97',11);
+
+  // 마우스
+  ctx.fillStyle='#e94560';
+  ctx.beginPath(); ctx.arc(mx,my,7,0,Math.PI*2); ctx.fill();
+  label(ctx,'마우스',mx+8,my,'#e94560',11);
+
+  // 방향벡터
+  arrow(ctx, tx,ty, mx,my,'#f0db4f',3);
+
+  // toX, toY 점선
+  ctx.strokeStyle='#ffffff40'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(mx,ty); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mx,ty); ctx.lineTo(mx,my); ctx.stroke();
+  ctx.setLineDash([]);
+
+  label(ctx,'toX = mouseX - tankX', tx+20, ty+20,'#56ccf2',11);
+  label(ctx,'toY = mouseY - tankY', mx-30, (ty+my)/2,'#56ccf2',11);
+  label(ctx,'방향벡터', (tx+mx)/2-30,(ty+my)/2-15,'#f0db4f',12);
+})();
+
+// ── Canvas 3: 정규화 ──
+(function(){
+  const cv=document.getElementById('c3');
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#0d0d1a'; ctx.fillRect(0,0,340,220);
+  grid(ctx,340,220);
+
+  const cx=170, cy=130;
+
+  // 원 (반지름 1 = 단위원)
+  ctx.strokeStyle='#ffffff30'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(cx,cy,80,0,Math.PI*2); ctx.stroke();
+  label(ctx,'단위원 (길이=1)',cx+50,cy-75,'#ffffff50',10);
+
+  // 원래 벡터 (길이 다양)
+  const origVecs=[
+    {x:200,y:40,c:'#eb5757',label:'긴 벡터'},
+    {x:220,y:90,c:'#eb5757',label:''},
+    {x:130,y:50,c:'#eb5757',label:'짧은 벡터'},
+  ];
+  origVecs.forEach(v=>{
+    arrow(ctx,cx,cy,v.x,v.y,v.c,2);
+    if(v.label) label(ctx,v.label,v.x+5,v.y,'#eb5757',10);
+  });
+
+  // 정규화 후 (모두 반지름=80)
+  const angles=[Math.atan2(40-130,200-170), Math.atan2(90-130,220-170), Math.atan2(50-130,130-170)];
+  angles.forEach(a=>{
+    const nx=cx+80*Math.cos(a), ny=cy+80*Math.sin(a);
+    arrow(ctx,cx,cy,nx,ny,'#6fcf97',2.5);
+  });
+
+  label(ctx,'정규화 전 → 길이 제각각','10',200,'#eb5757',11);
+  label(ctx,'정규화 후 → 길이 모두 1','10',216,'#6fcf97',11);
+
+  // dist 표시
+  arrow(ctx,cx,cy,cx+80*Math.cos(0.4),cy+80*Math.sin(0.4),'#ffffff60',1);
+  label(ctx,'dist',cx+30,cy+15,'#f0db4f',12);
+})();
+
+// ── Canvas 4: 불릿 이동 ──
+(function(){
+  const cv=document.getElementById('c4');
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#0d0d1a'; ctx.fillRect(0,0,340,220);
+  grid(ctx,340,220);
+
+  const tx=60, ty=150;
+  const ang=-0.5;
+  const ax=Math.cos(ang), ay=Math.sin(ang);
+  const speed=80;
+
+  // 탱크
+  ctx.fillStyle='#6fcf97';
+  ctx.fillRect(tx-14,ty-14,28,28);
+  label(ctx,'탱크',tx-10,ty+30,'#6fcf97',11);
+
+  // 불릿 위치들 (시간 경과)
+  const steps=[0.3,0.6,0.9,1.2,1.5,1.8,2.1,2.4];
+  steps.forEach((t,i)=>{
+    const bx=tx+ax*speed*t;
+    const by=ty+ay*speed*t;
+    const alpha=0.2+i*0.1;
+    ctx.fillStyle=`rgba(235,87,87,${alpha})`;
+    ctx.beginPath(); ctx.arc(bx,by,7,0,Math.PI*2); ctx.fill();
+  });
+
+  // 현재 불릿
+  const curx=tx+ax*speed*2.7, cury=ty+ay*speed*2.7;
+  ctx.fillStyle='#e94560';
+  ctx.beginPath(); ctx.arc(curx,cury,9,0,Math.PI*2); ctx.fill();
+
+  // 이동 방향 벡터
+  arrow(ctx,curx,cury,curx+ax*50,cury+ay*50,'#f0db4f',2.5);
+
+  label(ctx,'x += aimX * speed * delta',10,195,'#56ccf2',11);
+  label(ctx,'y += aimY * speed * delta',10,210,'#56ccf2',11);
+
+  label(ctx,'aimX='+ax.toFixed(2),curx+ax*55,cury+ay*55-8,'#f0db4f',11);
+  label(ctx,'aimY='+ay.toFixed(2),curx+ax*55,cury+ay*55+8,'#f0db4f',11);
+})();
+</script>
+
+<!-- ══════════════════ TWIN 섹션 ══════════════════ -->
+<hr style="border:1px solid #ffffff20; margin: 40px auto; max-width:860px;">
+<h2>🔫 Bullet2Twin — 쌍발 발사 원리</h2>
+<p class="subtitle">fire() 안에서 두 발이 어떻게 만들어지는가</p>
+
+<div class="container">
+
+  <!-- Twin Step 1 -->
+  <div class="card">
+    <h3>① aim 방향의 수직 벡터</h3>
+    <canvas id="t1" width="340" height="220"></canvas>
+    <div class="code">
+      <span class="c-gray">// aim 방향을 90도 회전</span><br>
+      <span class="c-yellow">verticalVectorX</span> = -<span class="c-blue">aimY</span><br>
+      <span class="c-yellow">verticalVectorY</span> = &nbsp;<span class="c-blue">aimX</span><br>
+      <br>
+      <span class="c-gray">// → aim과 항상 직각을 이룸</span>
+    </div>
+  </div>
+
+  <!-- Twin Step 2 -->
+  <div class="card">
+    <h3>② barrelGap 만큼 좌우 오프셋</h3>
+    <canvas id="t2" width="340" height="220"></canvas>
+    <div class="code">
+      <span class="c-gray">// 왼쪽 포신 위치</span><br>
+      x - <span class="c-yellow">vertical</span> * <span class="c-purple">barrelGap</span><br>
+      <br>
+      <span class="c-gray">// 오른쪽 포신 위치</span><br>
+      x + <span class="c-yellow">vertical</span> * <span class="c-purple">barrelGap</span><br>
+      <br>
+      <span class="c-gray">// barrelGap = 30f</span>
+    </div>
+  </div>
+
+  <!-- Twin Step 3 (full width) -->
+  <div class="card" style="grid-column: 1 / -1;">
+    <h3>③ 두 포신에서 같은 방향으로 발사</h3>
+    <canvas id="t3" width="820" height="200"></canvas>
+    <div class="code">
+      <span class="c-gray">// listOf로 두 불릿 동시 반환</span><br>
+      return listOf(<br>
+      &nbsp;&nbsp;Bullet2Twin(x - <span class="c-yellow">vertical</span> * gap, y - <span class="c-yellow">vertical</span> * gap, <span class="c-blue">aimX</span>, <span class="c-blue">aimY</span>),<br>
+      &nbsp;&nbsp;Bullet2Twin(x + <span class="c-yellow">vertical</span> * gap, y + <span class="c-yellow">vertical</span> * gap, <span class="c-blue">aimX</span>, <span class="c-blue">aimY</span>)<br>
+      )
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── 공통 유틸 재사용 ──
+function arrowT(ctx,x1,y1,x2,y2,color,w=2){
+  ctx.strokeStyle=color;ctx.lineWidth=w;
+  ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1),l=10;
+  ctx.fillStyle=color;ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-l*Math.cos(a-0.4),y2-l*Math.sin(a-0.4));
+  ctx.lineTo(x2-l*Math.cos(a+0.4),y2-l*Math.sin(a+0.4));
+  ctx.closePath();ctx.fill();
+}
+function lbl(ctx,t,x,y,c='#eee',s=12){ctx.fillStyle=c;ctx.font=`${s}px monospace`;ctx.fillText(t,x,y);}
+function gridT(ctx,w,h){
+  ctx.strokeStyle='#ffffff10';ctx.lineWidth=1;
+  for(let x=0;x<w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+}
+
+// ── Twin Canvas 1: 수직 벡터 ──
+(function(){
+  const cv=document.getElementById('t1');
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#0d0d1a';ctx.fillRect(0,0,340,220);
+  gridT(ctx,340,220);
+
+  const cx=170,cy=130;
+  const ang=-0.6;
+  const ax=Math.cos(ang)*90, ay=Math.sin(ang)*90;
+  // 탱크
+  ctx.fillStyle='#6fcf97';ctx.fillRect(cx-12,cy-12,24,24);
+
+  // aim 벡터
+  arrowT(ctx,cx,cy,cx+ax,cy+ay,'#f0db4f',3);
+  lbl(ctx,'aim (aimX, aimY)',cx+ax+5,cy+ay,'#f0db4f',11);
+
+  // 수직 벡터 (90도 회전: -ay, ax)
+  const vx=-ay, vy=ax;
+  arrowT(ctx,cx,cy,cx+vx*0.7,cy+vy*0.7,'#e94560',3);
+  lbl(ctx,'vertical',cx+vx*0.7+5,cy+vy*0.7,'#e94560',11);
+  lbl(ctx,'(-aimY, aimX)',cx+vx*0.7+5,cy+vy*0.7+15,'#e94560',10);
+
+  // 직각 표시
+  const sq=12;
+  const ux=ax/90, uy=ay/90;
+  const wx=-uy, wy=ux;
+  ctx.strokeStyle='#ffffff50';ctx.lineWidth=1;
+  ctx.beginPath();
+  ctx.moveTo(cx+ux*sq,cy+uy*sq);
+  ctx.lineTo(cx+ux*sq+wx*sq,cy+uy*sq+wy*sq);
+  ctx.lineTo(cx+wx*sq,cy+wy*sq);
+  ctx.stroke();
+  lbl(ctx,'90°',cx+ux*sq*0.5+wx*sq*0.5+3,cy+uy*sq*0.5+wy*sq*0.5,'#ffffff80',10);
+})();
+
+// ── Twin Canvas 2: barrelGap ──
+(function(){
+  const cv=document.getElementById('t2');
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#0d0d1a';ctx.fillRect(0,0,340,220);
+  gridT(ctx,340,220);
+
+  const cx=170,cy=120;
+  const ang=-0.6;
+  const ax=Math.cos(ang), ay=Math.sin(ang);
+  const vx=-ay, vy=ax;
+  const gap=55; // 시각적 barrelGap
+
+  // 탱크 중심
+  ctx.fillStyle='#6fcf97';ctx.fillRect(cx-10,cy-10,20,20);
+  lbl(ctx,'탱크 중심',cx-20,cy+28,'#6fcf97',10);
+
+  // 수직 벡터 방향 표시 (점선)
+  ctx.strokeStyle='#e9456060';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(cx-vx*gap*1.4,cy-vy*gap*1.4);ctx.lineTo(cx+vx*gap*1.4,cy+vy*gap*1.4);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 왼쪽 포신
+  const lx=cx-vx*gap, ly=cy-vy*gap;
+  ctx.fillStyle='#56ccf2';ctx.beginPath();ctx.arc(lx,ly,8,0,Math.PI*2);ctx.fill();
+  lbl(ctx,'왼쪽',lx-15,ly-14,'#56ccf2',10);
+
+  // 오른쪽 포신
+  const rx=cx+vx*gap, ry=cy+vy*gap;
+  ctx.fillStyle='#bb86fc';ctx.beginPath();ctx.arc(rx,ry,8,0,Math.PI*2);ctx.fill();
+  lbl(ctx,'오른쪽',rx+5,ry-14,'#bb86fc',10);
+
+  // gap 화살표
+  arrowT(ctx,cx,cy,lx,ly,'#ffffff60',1);
+  arrowT(ctx,cx,cy,rx,ry,'#ffffff60',1);
+  lbl(ctx,'barrelGap',(cx+lx)/2-35,(cy+ly)/2-8,'#f0db4f',10);
+  lbl(ctx,'barrelGap',(cx+rx)/2+5,(cy+ry)/2+15,'#f0db4f',10);
+})();
+
+// ── Twin Canvas 3: 두 발 발사 ──
+(function(){
+  const cv=document.getElementById('t3');
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#0d0d1a';ctx.fillRect(0,0,820,200);
+  gridT(ctx,820,200);
+
+  const cx=130, cy=110;
+  const ang=-0.35;
+  const ax=Math.cos(ang), ay=Math.sin(ang);
+  const vx=-ay, vy=ax;
+  const gap=35;
+
+  // 탱크
+  ctx.fillStyle='#6fcf97';ctx.fillRect(cx-14,cy-14,28,28);
+  lbl(ctx,'탱크',cx-10,cy+30,'#6fcf97',11);
+
+  // 두 포신 위치
+  const lx=cx-vx*gap, ly=cy-vy*gap;
+  const rx=cx+vx*gap, ry=cy+vy*gap;
+
+  // 왼쪽 발사 궤적
+  const steps=[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5];
+  steps.forEach((t,i)=>{
+    ctx.fillStyle=`rgba(86,204,242,${0.15+i*0.09})`;
+    ctx.beginPath();ctx.arc(lx+ax*80*t,ly+ay*80*t,7,0,Math.PI*2);ctx.fill();
+  });
+
+  // 오른쪽 발사 궤적
+  steps.forEach((t,i)=>{
+    ctx.fillStyle=`rgba(187,134,252,${0.15+i*0.09})`;
+    ctx.beginPath();ctx.arc(rx+ax*80*t,ry+ay*80*t,7,0,Math.PI*2);ctx.fill();
+  });
+
+  // 현재 불릿
+  ctx.fillStyle='#56ccf2';ctx.beginPath();ctx.arc(lx+ax*80*5,ly+ay*80*5,9,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#bb86fc';ctx.beginPath();ctx.arc(rx+ax*80*5,ry+ay*80*5,9,0,Math.PI*2);ctx.fill();
+
+  // 방향 화살표
+  arrowT(ctx,lx+ax*80*5,ly+ay*80*5,lx+ax*80*5+ax*40,ly+ay*80*5+ay*40,'#56ccf2',2);
+  arrowT(ctx,rx+ax*80*5,ry+ay*80*5,rx+ax*80*5+ax*40,ry+ay*80*5+ay*40,'#bb86fc',2);
+
+  // 포신 점
+  ctx.fillStyle='#56ccf2';ctx.beginPath();ctx.arc(lx,ly,6,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#bb86fc';ctx.beginPath();ctx.arc(rx,ry,6,0,Math.PI*2);ctx.fill();
+
+  lbl(ctx,'왼쪽 불릿',lx-10,ly-16,'#56ccf2',10);
+  lbl(ctx,'오른쪽 불릿',rx+5,ry+20,'#bb86fc',10);
+  lbl(ctx,'← 같은 aimX, aimY 방향으로 두 발 동시 발사 →',280,185,'#ffffff80',11);
+})();
+</script>
+</body>
+</html>

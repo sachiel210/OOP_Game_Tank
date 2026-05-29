@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
+const val BULLET2_RELOAD_INTERVAL = 0.3f  // 쌍발 빠른 연사, 3.3발/초
+
 class Bullet2Twin(
     x: Float,
     y: Float,
@@ -21,27 +23,17 @@ class Bullet2Twin(
         texture.dispose()
     }
 
-    private val barrelGap = 30f
+    companion object {
+        private const val barrelGap = 30f
 
-    fun fire(): ArrayList<SuperBullet> {
-        val verticalVectorX = -aimY
-        val verticalVectorY =  aimX
+        fun fire(x: Float, y: Float, aimX: Float, aimY: Float): List<SuperBullet> {
+            val verticalVectorX = -aimY
+            val verticalVectorY =  aimX
 
-        val leftBullet = Bullet2Twin(
-            x - verticalVectorX * barrelGap,
-            y - verticalVectorY * barrelGap,
-            aimX, aimY
-        )
-
-        val rightBullet = Bullet2Twin(
-            x + verticalVectorX * barrelGap,
-            y + verticalVectorY * barrelGap,
-            aimX, aimY
-        )
-
-        val bullets = ArrayList<SuperBullet>()
-        bullets.add(leftBullet)
-        bullets.add(rightBullet)
-        return bullets
+            return listOf(
+                Bullet2Twin(x - verticalVectorX * barrelGap, y - verticalVectorY * barrelGap, aimX, aimY),
+                Bullet2Twin(x + verticalVectorX * barrelGap, y + verticalVectorY * barrelGap, aimX, aimY)
+            )
+        }
     }
 }

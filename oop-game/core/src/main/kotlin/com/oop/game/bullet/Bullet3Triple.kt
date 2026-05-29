@@ -3,6 +3,9 @@ package com.oop.game.bullet
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.oop.game.bullet.Bullet3Triple
+
+const val BULLET3_RELOAD_INTERVAL = 0.2f  // 삼발 초고속 연사, 5발/초
 
 class Bullet3Triple(
     x: Float,
@@ -21,34 +24,18 @@ class Bullet3Triple(
         texture.dispose()
     }
 
-    private val barrelGap = 30f
+    companion object {
+        private const val barrelGap = 30f
 
-    fun fire(): ArrayList<SuperBullet> {
-        val verticalVectorX = -aimX
-        val verticalVectorY =  aimY
+        fun fire(x: Float, y: Float, aimX: Float, aimY: Float): List<SuperBullet> {
+            val verticalVectorX = -aimY
+            val verticalVectorY = aimX
 
-        val leftBullet = Bullet3Triple(
-            x - verticalVectorX * barrelGap,
-            y - verticalVectorY * barrelGap,
-            aimX, aimY
-        )
-
-        val middleBullet = Bullet3Triple(
-            x,
-            y,
-            aimX, aimY
-        )
-
-        val rightBullet = Bullet3Triple(
-            x + verticalVectorX * barrelGap,
-            y + verticalVectorY * barrelGap,
-            aimX, aimY
-        )
-
-        val bullets = ArrayList<SuperBullet>()
-        bullets.add(leftBullet)
-        bullets.add(middleBullet)
-        bullets.add(rightBullet)
-        return bullets
+            return listOf(
+                Bullet3Triple(x - verticalVectorX * barrelGap, y - verticalVectorY * barrelGap, aimX, aimY),
+                Bullet3Triple(x, y, aimX, aimY),
+                Bullet3Triple(x + verticalVectorX * barrelGap, y + verticalVectorY * barrelGap, aimX, aimY)
+            )
+        }
     }
 }
