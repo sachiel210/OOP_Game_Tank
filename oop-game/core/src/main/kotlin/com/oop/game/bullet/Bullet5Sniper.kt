@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
+const val BULLET5_RELOAD_INTERVAL = 0.8f  // 스나이퍼 단발 고데미지, 1.25발/초
+
 class Bullet5Sniper(
     x: Float,
     y: Float,
@@ -21,9 +23,12 @@ class Bullet5Sniper(
         texture.dispose()
     }
 
-    fun fire(): ArrayList<SuperBullet> {
-        val bullets = ArrayList<SuperBullet>()
-        bullets.add(Bullet5Sniper(x, y, aimX, aimY))
-        return bullets
+    companion object {
+        fun fire(x: Float, y: Float, aimX: Float, aimY: Float): List<SuperBullet> {
+
+            return listOf(
+                Bullet5Sniper(x, y, aimX, aimY)
+            )
+        }
     }
 }

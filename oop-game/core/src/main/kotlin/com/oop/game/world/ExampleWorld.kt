@@ -26,7 +26,7 @@ class ExampleWorld(
         GAME_OVER
     }
 
-    private val player = Tank5Sniper(
+    private val player = Tank1Nomal(
         x = worldWidth / 2,
         y = worldHeight / 2,
         worldWidth = worldWidth,
@@ -56,6 +56,7 @@ class ExampleWorld(
 
     private val spawnInterval = 3f
     private var spawnTimer = 0f
+    private var reloadTimer = 0f
 
     private val spawnWeights = listOf(
         40,  // DotEnemy      40%
@@ -159,7 +160,10 @@ class ExampleWorld(
         resolveEnemyCollisions()
 
         // 6) 발사 로직
-        if (Gdx.input.isButtonJustPressed(InputHandler.LeftMousClick)) {
+        reloadTimer += delta
+        if (Gdx.input.isButtonPressed(InputHandler.LeftMousClick) && reloadTimer >= BULLET1_RELOAD_INTERVAL) {
+            reloadTimer = 0f
+
             val bulletX = player.x
             val bulletY = player.y
 
@@ -172,10 +176,8 @@ class ExampleWorld(
             val aimVectorX = toMouseVectorX / toMouseDist
             val aimVectorY = toMouseVectorY / toMouseDist
 
-            val temp = Bullet5Sniper(bulletX - 8f, bulletY - 4f, aimVectorX, aimVectorY)
-            val bullets = temp.fire()
-            for (i in 0 until bullets.size) {
-                add(bullets[i])
+            for (bullet in Bullet4Quad.fire(bulletX, bulletY, aimVectorX, aimVectorY)) {
+                add(bullet)
             }
         }
     }
@@ -306,14 +308,35 @@ class ExampleWorld(
         drawTextOnScreen(
             text = "Game Over!",
             x = screenWidth / 2 - 80f,
-            y = screenHeight / 2,
+            y = screenHeight / 2 + 40f,
             color = Color.WHITE,
             scale = 2f
         )
         drawTextOnScreen(
-            text = "Press ESC to exit",
+            text = "Level: ${expBar.currentLevel}",
+            x = screenWidth / 2 - 50f,
+            y = screenHeight / 2,
+            color = Color.WHITE,
+            scale = 1.5f
+        )
+        drawTextOnScreen(
+            text = "EXP: ${expBar.expPoint.toInt()}",
+            x = screenWidth / 2 - 50f,
+            y = screenHeight / 2 - 35f,
+            color = Color.WHITE,
+            scale = 1.5f
+        )
+        drawTextOnScreen(
+            text = "TIME: ${spawnTimer.toInt()}",
             x = screenWidth / 2 - 70f,
-            y = screenHeight / 2 - 40f,
+            y = screenHeight / 2 - 75f,
+            color = Color.WHITE,
+            scale = 1.5f
+        )
+        drawTextOnScreen(
+            text = "Press ESC to exit",
+            x = screenWidth / 2 - 100f,
+            y = screenHeight / 2 - 100f,
             color = Color.WHITE,
             scale = 1f
         )

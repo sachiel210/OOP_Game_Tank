@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
+const val BULLET7_RELOAD_INTERVAL = 1.5f  // 초강력 한방, 0.67발/초
+
 class Bullet7Destroyer(
     x: Float,
     y: Float,
@@ -21,9 +23,12 @@ class Bullet7Destroyer(
         texture.dispose()
     }
 
-    fun fire(): ArrayList<SuperBullet> {
-        val bullets = ArrayList<SuperBullet>()
-        bullets.add(Bullet7Destroyer(x, y, aimX, aimY))
-        return bullets
+    companion object {
+        fun fire(x: Float, y: Float, aimX: Float, aimY: Float): List<SuperBullet> {
+
+            return listOf(
+                Bullet7Destroyer(x, y, aimX, aimY)
+            )
+        }
     }
 }
