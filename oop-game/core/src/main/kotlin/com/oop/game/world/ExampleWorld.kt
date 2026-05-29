@@ -12,7 +12,6 @@ import com.oop.game.infomation.*
 import com.oop.game.tank.*
 import kotlin.math.floor
 import com.badlogic.gdx.math.MathUtils
-import kotlin.math.exp
 
 
 class ExampleWorld(
@@ -131,39 +130,15 @@ class ExampleWorld(
             }
         }
 
-        // ── 탄환 vs 적 충돌 판정 ──
-        for (bullet in getObjects()) {
-            if (bullet is SuperBullet) {
-                for (target in getObjects()) {
-                    if (target is SuperEnemy && target !is DotEnemy && bullet.collidesWith(target)) {
-                        target.takeDamage(bullet.damage) // HP 감소만
-                        bullet.kill()                    // 탄환 제거
-                        break                            // 탄환 하나당 적 하나만 처리
-                    }
-                }
-            }
-        }
-
-
         // 2) 충돌 체크 — 모든 적과 플레이어 충돌 확인
         for (obj in getObjects()) {
             if (obj is SuperEnemy && player.collidesWith(obj)) {
-                if (obj is DotEnemy) {
-                    obj.takeDamage(obj.enemyHp)
-                    expBar.expPoint += obj.getExp
-                } else {
-                    player.takeDamage(obj.contactDamage)
-                    obj.takeDamage(obj.enemyHp)
-                    expBar.expPoint += obj.getExp
-                }
+                state = GameState.GAME_OVER
+                break
             }
         }
 
-        if (player.tankHealthPoint <= 0) {
-            state = GameState.GAME_OVER
-        }
-
-        updateAllObjects(delta)
+        // 3) 죽은 객체 정리
         removeDead()
 
         // 4) 타이머로 랜덤 스폰

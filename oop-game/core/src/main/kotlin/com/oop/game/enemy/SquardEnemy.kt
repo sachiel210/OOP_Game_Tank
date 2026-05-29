@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 class SquardEnemy (
     x: Float,
     y: Float
-) : SuperEnemy(x, y, 90f, 90f) {
+) : SuperEnemy(x, y, 40f, 40f) {
 
     // 이미지 로딩
     private val texture = Texture(Gdx.files.internal("enemy_image/enemy_square.png"))
@@ -19,7 +19,7 @@ class SquardEnemy (
     }
 
     // 1. 채력 변수 - 종류마다 다르게 `
-    override var enemyHp: Float = 220f
+    override var enemyHp: Float = 50f
 
     // 2. 적이 충돌시 탱크에게 주는 데미지
     override var contactDamage: Float = 10f

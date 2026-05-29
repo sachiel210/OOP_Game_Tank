@@ -27,9 +27,9 @@ import com.oop.game.GameObject
 abstract class SuperEnemy(
     x: Float,
     y: Float,
-    width : Float,
-    height: Float
-) : GameObject(x, y, width, height) {
+    private val minX: Float,
+    private val maxX: Float
+) : GameObject(x, y, 40f, 40f) {
 
     // 1. 채력 변수 - 종류마다 다르게 `
     abstract var enemyHp : Float

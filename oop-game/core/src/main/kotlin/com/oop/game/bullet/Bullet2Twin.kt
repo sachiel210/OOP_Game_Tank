@@ -9,7 +9,7 @@ class Bullet2Twin(
     y: Float,
     aimX: Float,
     aimY: Float
-) : SuperBullet(x, y, 25f, 25f, aimX, aimY, speed = 300f, damage = 10f) {
+) : SuperBullet(x, y, 25f, 25f, aimX, aimY, speed = 300f) {
 
     private val texture = Texture(Gdx.files.internal("bullet_image/bullet_nomal.png"))
 

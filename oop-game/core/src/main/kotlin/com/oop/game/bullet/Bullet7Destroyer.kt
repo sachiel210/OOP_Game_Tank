@@ -9,7 +9,7 @@ class Bullet7Destroyer(
     y: Float,
     aimX: Float,
     aimY: Float
-) : SuperBullet(x, y, 50f, 50f, aimX, aimY, speed = 150f, damage = 90f) {
+) : SuperBullet(x, y, 50f, 50f, aimX, aimY, speed = 150f) {
 
     private val texture = Texture(Gdx.files.internal("bullet_image/bullet_nomal.png"))
 

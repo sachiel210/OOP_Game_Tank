@@ -130,11 +130,4 @@ abstract class SuperTank( // GameObject의 자식 클래스
     override fun dispose() {
         body.dispose()
     }
-
-    fun takeDamage(amount: Float) {
-        tankHealthPoint -= amount
-        if (tankHealthPoint < 0f) {
-            tankHealthPoint = 0f
-        }
-    }
 }

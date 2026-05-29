@@ -9,7 +9,7 @@ class Bullet5Sniper(
     y: Float,
     aimX: Float,
     aimY: Float
-) : SuperBullet(x, y, 80f, 80f, aimX, aimY, speed = 700f, damage = 10f) {
+) : SuperBullet(x, y, 80f, 80f, aimX, aimY, speed = 700f) {
 
     private val texture = Texture(Gdx.files.internal("bullet_image/bullet_nomal.png"))
 

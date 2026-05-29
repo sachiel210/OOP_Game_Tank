@@ -10,18 +10,11 @@ abstract class SuperBullet(
     height: Float,
     protected val aimX: Float,
     protected val aimY: Float,
-    protected val speed: Float,
-    val damage : Float
+    protected val speed: Float
 ) : GameObject(x, y, width, height) {
 
-    private var alive = true
-
-    fun kill() {
-        alive = false
-    }
-
     override fun isAlive(): Boolean =
-        alive && y > -height && y < 1500f && x > -width && x < 1500f
+        y > -height && y < 1500f && x > -width && x < 1500f
 
     override fun update(delta: Float) {
         x += aimX * speed * delta
