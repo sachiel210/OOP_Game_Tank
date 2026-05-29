@@ -1,0 +1,43 @@
+﻿# ===== IntelliJ IDEA =====
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ===== Gradle =====
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# ===== Kotlin =====
+*.class
+*.jar
+*.war
+*.ear
+
+# ===== 빌드 결과물 =====
+target/
+bin/
+
+# ===== 로그 =====
+*.log
+logs/
+
+# ===== OS 파일 =====
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# ===== 임시 파일 =====
+*.tmp
+*.swp
+*.bak
+*~
+
+# ===== 환경 설정 =====
+local.properties
+*.env
