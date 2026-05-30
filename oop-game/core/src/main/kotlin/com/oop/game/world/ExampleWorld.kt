@@ -195,9 +195,19 @@ class ExampleWorld(
         // 적들이 추적한 뒤 겹치면 밀어내기
         resolveEnemyCollisions()
 
-        // 6) 발사 로직
+        // 6) 발사 로직 — 탱크 종류에 따라 재장전 속도와 탄환 종류가 달라짐
+        val reloadInterval = when (player) {
+            is Tank2Twin      -> BULLET2_RELOAD_INTERVAL
+            is Tank3Triple    -> BULLET3_RELOAD_INTERVAL
+            is Tank4Quad      -> BULLET4_RELOAD_INTERVAL
+            is Tank5Sniper    -> BULLET5_RELOAD_INTERVAL
+            is Tank6Ranger    -> BULLET6_RELOAD_INTERVAL
+            is Tank7Destroyer -> BULLET7_RELOAD_INTERVAL
+            else              -> BULLET1_RELOAD_INTERVAL
+        }
+
         reloadTimer += delta
-        if (Gdx.input.isButtonPressed(InputHandler.LeftMousClick) && reloadTimer >= BULLET1_RELOAD_INTERVAL) {
+        if (Gdx.input.isButtonPressed(InputHandler.LeftMousClick) && reloadTimer >= reloadInterval) {
             reloadTimer = 0f
 
             val bulletX = player.x
@@ -212,7 +222,16 @@ class ExampleWorld(
             val aimVectorX = toMouseVectorX / toMouseDist
             val aimVectorY = toMouseVectorY / toMouseDist
 
-            for (bullet in Bullet4Quad.fire(bulletX, bulletY, aimVectorX, aimVectorY)) {
+            val bullets = when (player) {
+                is Tank2Twin      -> Bullet2Twin.fire(bulletX, bulletY, aimVectorX, aimVectorY)
+                is Tank3Triple    -> Bullet3Triple.fire(bulletX, bulletY, aimVectorX, aimVectorY)
+                is Tank4Quad      -> Bullet4Quad.fire(bulletX, bulletY, aimVectorX, aimVectorY)
+                is Tank5Sniper    -> Bullet5Sniper.fire(bulletX, bulletY, aimVectorX, aimVectorY)
+                is Tank6Ranger    -> Bullet6Ranger.fire(bulletX, bulletY, aimVectorX, aimVectorY)
+                is Tank7Destroyer -> Bullet7Destroyer.fire(bulletX, bulletY, aimVectorX, aimVectorY)
+                else              -> Bullet1Normal.fire(bulletX, bulletY, aimVectorX, aimVectorY)
+            }
+            for (bullet in bullets) {
                 add(bullet)
             }
         }
